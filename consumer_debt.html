@@ -1,0 +1,2663 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Eric Anderson">
+<meta name="dcterms.date" content="2026-04-22">
+
+<title>The Rise in Consumer Debt</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="consumer_debt_files/libs/clipboard/clipboard.min.js"></script>
+<script src="consumer_debt_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="consumer_debt_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="consumer_debt_files/libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="consumer_debt_files/libs/quarto-html/popper.min.js"></script>
+<script src="consumer_debt_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="consumer_debt_files/libs/quarto-html/anchor.min.js"></script>
+<link href="consumer_debt_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="consumer_debt_files/libs/quarto-html/quarto-syntax-highlighting-dark-707d8167ce6003fca903bfe2be84ab7f.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="consumer_debt_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="consumer_debt_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="consumer_debt_files/libs/bootstrap/bootstrap-fcc3bc6eb91de46a6ea40c6d96a0da9b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
+<script src="consumer_debt_files/libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="consumer_debt_files/libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#statement-of-purpose" id="toc-statement-of-purpose" class="nav-link active" data-scroll-target="#statement-of-purpose">Statement of Purpose</a></li>
+  <li><a href="#executive-summary" id="toc-executive-summary" class="nav-link" data-scroll-target="#executive-summary">Executive Summary</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis">Exploratory Data Analysis</a></li>
+  <li><a href="#model-selection-process" id="toc-model-selection-process" class="nav-link" data-scroll-target="#model-selection-process">Model Selection Process</a></li>
+  <li><a href="#linear-regression-model-construction-with-single-predictor" id="toc-linear-regression-model-construction-with-single-predictor" class="nav-link" data-scroll-target="#linear-regression-model-construction-with-single-predictor">Linear Regression Model Construction with Single Predictor</a></li>
+  <li><a href="#linear-regression-model-construction-with-multiple-predictors-from-best-subset-selection" id="toc-linear-regression-model-construction-with-multiple-predictors-from-best-subset-selection" class="nav-link" data-scroll-target="#linear-regression-model-construction-with-multiple-predictors-from-best-subset-selection">Linear Regression Model Construction with Multiple Predictors from Best Subset Selection</a></li>
+  <li><a href="#linear-regression-model-construction-with-multiple-predictors-from-lasso-method" id="toc-linear-regression-model-construction-with-multiple-predictors-from-lasso-method" class="nav-link" data-scroll-target="#linear-regression-model-construction-with-multiple-predictors-from-lasso-method">Linear Regression Model Construction with Multiple Predictors from LASSO method</a></li>
+  <li><a href="#random-forest-model-construction-with-all-predictors" id="toc-random-forest-model-construction-with-all-predictors" class="nav-link" data-scroll-target="#random-forest-model-construction-with-all-predictors">Random Forest Model Construction with all Predictors</a></li>
+  <li><a href="#random-forest-model-construction-with-best-subset-selection" id="toc-random-forest-model-construction-with-best-subset-selection" class="nav-link" data-scroll-target="#random-forest-model-construction-with-best-subset-selection">Random Forest Model Construction with Best Subset Selection</a></li>
+  <li><a href="#random-forest-model-construction-with-lasso-method" id="toc-random-forest-model-construction-with-lasso-method" class="nav-link" data-scroll-target="#random-forest-model-construction-with-lasso-method">Random Forest Model Construction with LASSO method</a></li>
+  <li><a href="#model-performance-assessment" id="toc-model-performance-assessment" class="nav-link" data-scroll-target="#model-performance-assessment">Model Performance Assessment</a></li>
+  <li><a href="#model-interpretation-and-inference" id="toc-model-interpretation-and-inference" class="nav-link" data-scroll-target="#model-interpretation-and-inference">Model Interpretation and Inference</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">The Rise in Consumer Debt</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Eric Anderson </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">April 22, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="statement-of-purpose" class="level2">
+<h2 class="anchored" data-anchor-id="statement-of-purpose">Statement of Purpose</h2>
+<p>The purpose of this project is to predict and explain the rise in consumer debt over the past 20 years. The goal is to not only understand the underlying trends, but also to analyze the macroeconomic and political factors driving the rise in consumer debt. Understanding the main contributing factors responsible for rising consumer debt can help us better address this problem and to help lower the total debt or at least slow the rate at which it is accumulated.</p>
+</section>
+<section id="executive-summary" class="level2">
+<h2 class="anchored" data-anchor-id="executive-summary">Executive Summary</h2>
+<p>From the models I tested, the multiple linear regression model with predictors from best subset selection is the best-performing model in predicting total consumer debt, having the lowest prediction error, with a CV-RMSE of 0.410, compared to the Random Forest model with all predictors, a CV-RMSE of 0.709, and for the Single Linear Regression model, a CV-RMSE of 0.737. This suggests that a combination of economic and political factors have better predicting power than single predictors or more complex models than the random forest model.</p>
+</section>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>The data set contains 55 observations and 23 variables. The variable we aim to explain is total, which represents the total amount of consumer debt represented in trillions of dollars.</p>
+<p>Please note that the is_recession variable is represented as 0’s and 1’s, where 0 represents no recession, and 1 represents a recession. A recession is defined as two consecutive quarters of negative GDP growth, a decline in consumer spending, a decline in consumer sentiment, and a rise in unemployment.</p>
+<p>For the variables, pres_party, house_party, and senate_party, 0 represents Republican control and 1 represents Democrat control. Fiscal policy and government spending is influenced by political party control, which can influence consumer spending habits.</p>
+</section>
+<section id="exploratory-data-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="exploratory-data-analysis">Exploratory Data Analysis</h2>
+<p>Below is an overview of the data set.</p>
+<p>Number of Observations and Features: The data set here is relatively small, since it covers total consumer debt from 01-01-2003 to 10-01-2025. Of the 23 variables here, 14 will be used as potential predictors while the other 8 will be used for supplemental purposes in exploring the data. The remaining variable is the total consumer debt, our quantitative value we aim to predict.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-hover table-striped caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: right;" data-quarto-table-cell-role="th">x</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">23</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>First Six Rows of the Data Set: As you can see from the first six rows of the data set the dates are out of order. It is kept this way for training purposes, but as you’ll see below I organize it for graphing purposes.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-hover table-striped caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">year_quarter</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">mortgage</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">he_revolving</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">auto_loan</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">credit_card</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">student_loan</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">other</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">total</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">date</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">consumer_sentiment</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">unemployment_rate</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">cpi_index_avg</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">personal_savings_rate</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">cc_interest_rate</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">is_recession</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">pres_party</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">house_party</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">senate_party</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">hiring_rate</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">job_turnover_rate</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">eff_fed_funds_rate</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">mortgage_rate</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">auto_loan_rate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">22:Q1</td>
+<td style="text-align: right;">11.18</td>
+<td style="text-align: right;">0.317</td>
+<td style="text-align: right;">1.469</td>
+<td style="text-align: right;">0.841</td>
+<td style="text-align: right;">1.59</td>
+<td style="text-align: right;">0.445</td>
+<td style="text-align: right;">15.842</td>
+<td style="text-align: left;">2022-01-01</td>
+<td style="text-align: right;">63.13333</td>
+<td style="text-align: right;">3.866667</td>
+<td style="text-align: right;">284.9057</td>
+<td style="text-align: right;">3.833333</td>
+<td style="text-align: right;">14.54333</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">4.400000</td>
+<td style="text-align: right;">372.6667</td>
+<td style="text-align: right;">0.1214444</td>
+<td style="text-align: right;">4.872091</td>
+<td style="text-align: right;">4.520152</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">19:Q3</td>
+<td style="text-align: right;">9.44</td>
+<td style="text-align: right;">0.400</td>
+<td style="text-align: right;">1.320</td>
+<td style="text-align: right;">0.880</td>
+<td style="text-align: right;">1.50</td>
+<td style="text-align: right;">0.430</td>
+<td style="text-align: right;">13.950</td>
+<td style="text-align: left;">2019-07-01</td>
+<td style="text-align: right;">93.80000</td>
+<td style="text-align: right;">3.600000</td>
+<td style="text-align: right;">256.0893</td>
+<td style="text-align: right;">6.900000</td>
+<td style="text-align: right;">15.11000</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: right;">3.900000</td>
+<td style="text-align: right;">333.0000</td>
+<td style="text-align: right;">2.1921739</td>
+<td style="text-align: right;">3.949880</td>
+<td style="text-align: right;">5.316466</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">11:Q2</td>
+<td style="text-align: right;">8.52</td>
+<td style="text-align: right;">0.620</td>
+<td style="text-align: right;">0.710</td>
+<td style="text-align: right;">0.690</td>
+<td style="text-align: right;">0.85</td>
+<td style="text-align: right;">0.330</td>
+<td style="text-align: right;">11.730</td>
+<td style="text-align: left;">2011-04-01</td>
+<td style="text-align: right;">71.86667</td>
+<td style="text-align: right;">9.066667</td>
+<td style="text-align: right;">224.5683</td>
+<td style="text-align: right;">6.366667</td>
+<td style="text-align: right;">13.07333</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">3.266667</td>
+<td style="text-align: right;">315.0000</td>
+<td style="text-align: right;">0.0946154</td>
+<td style="text-align: right;">4.447852</td>
+<td style="text-align: right;">5.696420</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">08:Q4</td>
+<td style="text-align: right;">9.26</td>
+<td style="text-align: right;">0.710</td>
+<td style="text-align: right;">0.790</td>
+<td style="text-align: right;">0.870</td>
+<td style="text-align: right;">0.64</td>
+<td style="text-align: right;">0.410</td>
+<td style="text-align: right;">12.670</td>
+<td style="text-align: left;">2008-10-01</td>
+<td style="text-align: right;">57.66667</td>
+<td style="text-align: right;">6.866667</td>
+<td style="text-align: right;">213.8487</td>
+<td style="text-align: right;">5.566667</td>
+<td style="text-align: right;">12.00000</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">3.166667</td>
+<td style="text-align: right;">349.6667</td>
+<td style="text-align: right;">0.5053261</td>
+<td style="text-align: right;">5.603188</td>
+<td style="text-align: right;">6.288646</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">18:Q1</td>
+<td style="text-align: right;">8.94</td>
+<td style="text-align: right;">0.440</td>
+<td style="text-align: right;">1.230</td>
+<td style="text-align: right;">0.820</td>
+<td style="text-align: right;">1.41</td>
+<td style="text-align: right;">0.390</td>
+<td style="text-align: right;">13.210</td>
+<td style="text-align: left;">2018-01-01</td>
+<td style="text-align: right;">98.93333</td>
+<td style="text-align: right;">4.033333</td>
+<td style="text-align: right;">249.3217</td>
+<td style="text-align: right;">5.800000</td>
+<td style="text-align: right;">13.47333</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: right;">3.766667</td>
+<td style="text-align: right;">348.3333</td>
+<td style="text-align: right;">1.4470000</td>
+<td style="text-align: right;">4.424333</td>
+<td style="text-align: right;">4.807222</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">10:Q4</td>
+<td style="text-align: right;">8.45</td>
+<td style="text-align: right;">0.670</td>
+<td style="text-align: right;">0.710</td>
+<td style="text-align: right;">0.730</td>
+<td style="text-align: right;">0.81</td>
+<td style="text-align: right;">0.340</td>
+<td style="text-align: right;">11.710</td>
+<td style="text-align: left;">2010-10-01</td>
+<td style="text-align: right;">71.26667</td>
+<td style="text-align: right;">9.500000</td>
+<td style="text-align: right;">219.6990</td>
+<td style="text-align: right;">5.966667</td>
+<td style="text-align: right;">13.49000</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">3.233333</td>
+<td style="text-align: right;">312.0000</td>
+<td style="text-align: right;">0.1895652</td>
+<td style="text-align: right;">4.694052</td>
+<td style="text-align: right;">6.206753</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Basic Structure of the Data Set: The majority of the variables here are numerical, along with a date, character, and a few variables that have been converted into factors. Here I check to see if the data is appropriately represented. The year_quarter can stay as a character type as I use the date variable for graphing purposes. I keep it as a reference point only.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   55 obs. of  23 variables:
+ $ year_quarter         : chr  "22:Q1" "19:Q3" "11:Q2" "08:Q4" ...
+ $ mortgage             : num  11.18 9.44 8.52 9.26 8.94 ...
+ $ he_revolving         : num  0.317 0.4 0.62 0.71 0.44 0.67 0.57 0.54 0.319 0.396 ...
+ $ auto_loan            : num  1.47 1.32 0.71 0.79 1.23 ...
+ $ credit_card          : num  0.841 0.88 0.69 0.87 0.82 ...
+ $ student_loan         : num  1.59 1.5 0.85 0.64 1.41 ...
+ $ other                : num  0.445 0.43 0.33 0.41 0.39 0.34 0.31 0.3 0.47 0.554 ...
+ $ total                : num  15.8 13.9 11.7 12.7 13.2 ...
+ $ date                 : Date, format: "2022-01-01" "2019-07-01" ...
+ $ consumer_sentiment   : num  63.1 93.8 71.9 57.7 98.9 ...
+ $ unemployment_rate    : num  3.87 3.6 9.07 6.87 4.03 ...
+ $ cpi_index_avg        : num  285 256 225 214 249 ...
+ $ personal_savings_rate: num  3.83 6.9 6.37 5.57 5.8 ...
+ $ cc_interest_rate     : num  14.5 15.1 13.1 12 13.5 ...
+ $ is_recession         : Factor w/ 2 levels "0","1": 1 1 1 2 1 1 1 1 1 1 ...
+ $ pres_party           : Factor w/ 2 levels "0","1": 2 1 2 1 1 2 2 2 2 2 ...
+ $ house_party          : Factor w/ 2 levels "0","1": 2 2 1 2 1 2 1 1 2 1 ...
+ $ senate_party         : Factor w/ 2 levels "0","1": 2 1 2 2 1 2 2 2 2 2 ...
+ $ hiring_rate          : num  4.4 3.9 3.27 3.17 3.77 ...
+ $ job_turnover_rate    : num  373 333 315 350 348 ...
+ $ eff_fed_funds_rate   : num  0.1214 2.1922 0.0946 0.5053 1.447 ...
+ $ mortgage_rate        : num  4.87 3.95 4.45 5.6 4.42 ...
+ $ auto_loan_rate       : num  4.52 5.32 5.7 6.29 4.81 ...</code></pre>
+</div>
+</div>
+<p>Names of the Features used in the Data Set: Most of the variable names here are self explanatory, but I’ll give a basic explanation of some of the financial terms you may not be familiar with. HE (Home Equity) revolving debt is where you borrow against your home and use it to pay for goods and services. It is a secured type of debt that uses your home as collateral. The average CPI (Consumer Price Index) is used to track the average changes in cost of living. The effective federal funds rate is the baseline interest rate for borrowing costs set by the Federal Reserve.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-hover table-striped caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">x</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">year_quarter</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">mortgage</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">he_revolving</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">auto_loan</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">credit_card</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">student_loan</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">other</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">total</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">date</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">consumer_sentiment</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">unemployment_rate</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">cpi_index_avg</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">personal_savings_rate</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">cc_interest_rate</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">is_recession</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">pres_party</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">house_party</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">senate_party</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">hiring_rate</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">job_turnover_rate</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">eff_fed_funds_rate</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">mortgage_rate</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">auto_loan_rate</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Last Six Rows of the Data Set: This is just the tail end of the data set, a quick check to see if the end of the data set has any issues, which as you can see, it does not.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-hover table-striped caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th"></th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">year_quarter</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">mortgage</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">he_revolving</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">auto_loan</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">credit_card</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">student_loan</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">other</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">total</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">date</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">consumer_sentiment</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">unemployment_rate</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">cpi_index_avg</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">personal_savings_rate</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">cc_interest_rate</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">is_recession</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">pres_party</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">house_party</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">senate_party</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">hiring_rate</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">job_turnover_rate</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">eff_fed_funds_rate</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">mortgage_rate</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">auto_loan_rate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">50</td>
+<td style="text-align: left;">14:Q1</td>
+<td style="text-align: right;">8.17</td>
+<td style="text-align: right;">0.530</td>
+<td style="text-align: right;">0.880</td>
+<td style="text-align: right;">0.660</td>
+<td style="text-align: right;">1.110</td>
+<td style="text-align: right;">0.310</td>
+<td style="text-align: right;">11.650</td>
+<td style="text-align: left;">2014-01-01</td>
+<td style="text-align: right;">80.93333</td>
+<td style="text-align: right;">6.666667</td>
+<td style="text-align: right;">235.6210</td>
+<td style="text-align: right;">5.233333</td>
+<td style="text-align: right;">11.83667</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">3.433333</td>
+<td style="text-align: right;">352.3333</td>
+<td style="text-align: right;">0.0722222</td>
+<td style="text-align: right;">4.165143</td>
+<td style="text-align: right;">4.291905</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">51</td>
+<td style="text-align: left;">18:Q3</td>
+<td style="text-align: right;">9.14</td>
+<td style="text-align: right;">0.420</td>
+<td style="text-align: right;">1.270</td>
+<td style="text-align: right;">0.840</td>
+<td style="text-align: right;">1.440</td>
+<td style="text-align: right;">0.400</td>
+<td style="text-align: right;">13.510</td>
+<td style="text-align: left;">2018-07-01</td>
+<td style="text-align: right;">98.06667</td>
+<td style="text-align: right;">3.766667</td>
+<td style="text-align: right;">251.6863</td>
+<td style="text-align: right;">6.633333</td>
+<td style="text-align: right;">14.30000</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: right;">3.833333</td>
+<td style="text-align: right;">333.6667</td>
+<td style="text-align: right;">1.9261957</td>
+<td style="text-align: right;">4.568092</td>
+<td style="text-align: right;">5.046819</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">52</td>
+<td style="text-align: left;">12:Q4</td>
+<td style="text-align: right;">8.03</td>
+<td style="text-align: right;">0.560</td>
+<td style="text-align: right;">0.780</td>
+<td style="text-align: right;">0.680</td>
+<td style="text-align: right;">0.970</td>
+<td style="text-align: right;">0.320</td>
+<td style="text-align: right;">11.340</td>
+<td style="text-align: left;">2012-10-01</td>
+<td style="text-align: right;">79.40000</td>
+<td style="text-align: right;">7.800000</td>
+<td style="text-align: right;">231.3693</td>
+<td style="text-align: right;">9.133333</td>
+<td style="text-align: right;">11.90333</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">3.300000</td>
+<td style="text-align: right;">350.0000</td>
+<td style="text-align: right;">0.1611957</td>
+<td style="text-align: right;">3.666207</td>
+<td style="text-align: right;">4.910344</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">53</td>
+<td style="text-align: left;">23:Q3</td>
+<td style="text-align: right;">12.14</td>
+<td style="text-align: right;">0.349</td>
+<td style="text-align: right;">1.595</td>
+<td style="text-align: right;">1.079</td>
+<td style="text-align: right;">1.599</td>
+<td style="text-align: right;">0.529</td>
+<td style="text-align: right;">17.291</td>
+<td style="text-align: left;">2023-07-01</td>
+<td style="text-align: right;">69.56667</td>
+<td style="text-align: right;">3.633333</td>
+<td style="text-align: right;">305.9890</td>
+<td style="text-align: right;">5.466667</td>
+<td style="text-align: right;">21.07333</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">3.666667</td>
+<td style="text-align: right;">341.6667</td>
+<td style="text-align: right;">5.2592391</td>
+<td style="text-align: right;">6.880877</td>
+<td style="text-align: right;">7.918129</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">54</td>
+<td style="text-align: left;">19:Q2</td>
+<td style="text-align: right;">9.41</td>
+<td style="text-align: right;">0.400</td>
+<td style="text-align: right;">1.300</td>
+<td style="text-align: right;">0.870</td>
+<td style="text-align: right;">1.480</td>
+<td style="text-align: right;">0.410</td>
+<td style="text-align: right;">13.860</td>
+<td style="text-align: left;">2019-04-01</td>
+<td style="text-align: right;">98.46667</td>
+<td style="text-align: right;">3.633333</td>
+<td style="text-align: right;">255.2473</td>
+<td style="text-align: right;">7.333333</td>
+<td style="text-align: right;">15.11667</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: right;">3.866667</td>
+<td style="text-align: right;">314.0000</td>
+<td style="text-align: right;">2.3973626</td>
+<td style="text-align: right;">4.011436</td>
+<td style="text-align: right;">5.419060</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">55</td>
+<td style="text-align: left;">16:Q3</td>
+<td style="text-align: right;">8.35</td>
+<td style="text-align: right;">0.470</td>
+<td style="text-align: right;">1.140</td>
+<td style="text-align: right;">0.750</td>
+<td style="text-align: right;">1.280</td>
+<td style="text-align: right;">0.370</td>
+<td style="text-align: right;">12.350</td>
+<td style="text-align: left;">2016-07-01</td>
+<td style="text-align: right;">90.33333</td>
+<td style="text-align: right;">4.900000</td>
+<td style="text-align: right;">240.6073</td>
+<td style="text-align: right;">5.100000</td>
+<td style="text-align: right;">12.39333</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: right;">3.733333</td>
+<td style="text-align: right;">344.6667</td>
+<td style="text-align: right;">0.3948913</td>
+<td style="text-align: right;">3.650555</td>
+<td style="text-align: right;">4.150925</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Summary of the Data Set: This is a nice overview of the numerical values in the data set. The total consumer debt covers a wide range, from 7.38 to 18.78 trillion dollars, a massive figure. You can see the mortgage debt makes up a large portion of that amount, ranging from 5.08 to 13.17 trillion. For interest rates, the effective federal funds rate is relatively small when compared to the other interest rates, but increases from 0.07% to 5.26%, a nearly 75 times increase. This is massive when compared to the other interest rates included in my data set, where mortgage, auto loan, and credit card interest rates roughly double in size. It is worth noting that credit cards have the highest interest rates of 21.68%. Credit card debt has a max of 1.28 trillion dollars of the total consumer debt, a small figure comparatively, but the higher interest rate makes it difficult to pay off for the average consumer because of its compounding power.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-hover table-striped caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th"></th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">year_quarter</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">mortgage</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">he_revolving</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">auto_loan</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">credit_card</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">student_loan</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">other</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">total</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">date</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">consumer_sentiment</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">unemployment_rate</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">cpi_index_avg</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">personal_savings_rate</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">cc_interest_rate</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">is_recession</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">pres_party</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">house_party</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">senate_party</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">hiring_rate</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">job_turnover_rate</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">eff_fed_funds_rate</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">mortgage_rate</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">auto_loan_rate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Length:55</td>
+<td style="text-align: left;">Min. : 5.080</td>
+<td style="text-align: left;">Min. :0.2600</td>
+<td style="text-align: left;">Min. :0.620</td>
+<td style="text-align: left;">Min. :0.6600</td>
+<td style="text-align: left;">Min. :0.240</td>
+<td style="text-align: left;">Min. :0.3000</td>
+<td style="text-align: left;">Min. : 7.38</td>
+<td style="text-align: left;">Min. :2003-04-01</td>
+<td style="text-align: left;">Min. :52.50</td>
+<td style="text-align: left;">Min. :3.533</td>
+<td style="text-align: left;">Min. :183.1</td>
+<td style="text-align: left;">Min. : 1.800</td>
+<td style="text-align: left;">Min. :11.83</td>
+<td style="text-align: left;">0:51</td>
+<td style="text-align: left;">0:24</td>
+<td style="text-align: left;">0:36</td>
+<td style="text-align: left;">0:21</td>
+<td style="text-align: left;">Min. :2.867</td>
+<td style="text-align: left;">Min. :267.7</td>
+<td style="text-align: left;">Min. :0.07222</td>
+<td style="text-align: left;">Min. :2.960</td>
+<td style="text-align: left;">Min. :4.149</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Class :character</td>
+<td style="text-align: left;">1st Qu.: 8.110</td>
+<td style="text-align: left;">1st Qu.:0.4010</td>
+<td style="text-align: left;">1st Qu.:0.745</td>
+<td style="text-align: left;">1st Qu.:0.7000</td>
+<td style="text-align: left;">1st Qu.:0.660</td>
+<td style="text-align: left;">1st Qu.:0.3400</td>
+<td style="text-align: left;">1st Qu.:11.47</td>
+<td style="text-align: left;">1st Qu.:2008-12-31</td>
+<td style="text-align: left;">1st Qu.:71.57</td>
+<td style="text-align: left;">1st Qu.:4.167</td>
+<td style="text-align: left;">1st Qu.:213.7</td>
+<td style="text-align: left;">1st Qu.: 4.567</td>
+<td style="text-align: left;">1st Qu.:12.37</td>
+<td style="text-align: left;">1: 4</td>
+<td style="text-align: left;">1:31</td>
+<td style="text-align: left;">1:19</td>
+<td style="text-align: left;">1:34</td>
+<td style="text-align: left;">1st Qu.:3.300</td>
+<td style="text-align: left;">1st Qu.:324.3</td>
+<td style="text-align: left;">1st Qu.:0.12975</td>
+<td style="text-align: left;">1st Qu.:3.987</td>
+<td style="text-align: left;">1st Qu.:4.825</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Mode :character</td>
+<td style="text-align: left;">Median : 8.700</td>
+<td style="text-align: left;">Median :0.5000</td>
+<td style="text-align: left;">Median :0.820</td>
+<td style="text-align: left;">Median :0.7600</td>
+<td style="text-align: left;">Median :0.990</td>
+<td style="text-align: left;">Median :0.4000</td>
+<td style="text-align: left;">Median :12.13</td>
+<td style="text-align: left;">Median :2013-01-01</td>
+<td style="text-align: left;">Median :77.50</td>
+<td style="text-align: left;">Median :5.000</td>
+<td style="text-align: left;">Median :232.0</td>
+<td style="text-align: left;">Median : 5.500</td>
+<td style="text-align: left;">Median :13.20</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Median :3.667</td>
+<td style="text-align: left;">Median :336.3</td>
+<td style="text-align: left;">Median :0.76681</td>
+<td style="text-align: left;">Median :4.656</td>
+<td style="text-align: left;">Median :5.691</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Mean : 8.912</td>
+<td style="text-align: left;">Mean :0.5007</td>
+<td style="text-align: left;">Mean :1.020</td>
+<td style="text-align: left;">Mean :0.8041</td>
+<td style="text-align: left;">Mean :1.025</td>
+<td style="text-align: left;">Mean :0.4012</td>
+<td style="text-align: left;">Mean :12.66</td>
+<td style="text-align: left;">Mean :2013-12-04</td>
+<td style="text-align: left;">Mean :80.10</td>
+<td style="text-align: left;">Mean :5.914</td>
+<td style="text-align: left;">Mean :238.4</td>
+<td style="text-align: left;">Mean : 5.555</td>
+<td style="text-align: left;">Mean :14.02</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Mean :3.633</td>
+<td style="text-align: left;">Mean :336.6</td>
+<td style="text-align: left;">Mean :1.66769</td>
+<td style="text-align: left;">Mean :4.917</td>
+<td style="text-align: left;">Mean :5.933</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">3rd Qu.: 9.250</td>
+<td style="text-align: left;">3rd Qu.:0.6150</td>
+<td style="text-align: left;">3rd Qu.:1.275</td>
+<td style="text-align: left;">3rd Qu.:0.8405</td>
+<td style="text-align: left;">3rd Qu.:1.470</td>
+<td style="text-align: left;">3rd Qu.:0.4215</td>
+<td style="text-align: left;">3rd Qu.:13.61</td>
+<td style="text-align: left;">3rd Qu.:2018-11-16</td>
+<td style="text-align: left;">3rd Qu.:92.63</td>
+<td style="text-align: left;">3rd Qu.:7.767</td>
+<td style="text-align: left;">3rd Qu.:253.0</td>
+<td style="text-align: left;">3rd Qu.: 6.617</td>
+<td style="text-align: left;">3rd Qu.:14.53</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">3rd Qu.:3.867</td>
+<td style="text-align: left;">3rd Qu.:350.0</td>
+<td style="text-align: left;">3rd Qu.:2.79160</td>
+<td style="text-align: left;">3rd Qu.:5.982</td>
+<td style="text-align: left;">3rd Qu.:7.092</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Max. :13.170</td>
+<td style="text-align: left;">Max. :0.7100</td>
+<td style="text-align: left;">Max. :1.670</td>
+<td style="text-align: left;">Max. :1.2800</td>
+<td style="text-align: left;">Max. :1.660</td>
+<td style="text-align: left;">Max. :0.5600</td>
+<td style="text-align: left;">Max. :18.78</td>
+<td style="text-align: left;">Max. :2025-10-01</td>
+<td style="text-align: left;">Max. :98.93</td>
+<td style="text-align: left;">Max. :9.933</td>
+<td style="text-align: left;">Max. :325.5</td>
+<td style="text-align: left;">Max. :15.033</td>
+<td style="text-align: left;">Max. :21.68</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Max. :4.533</td>
+<td style="text-align: left;">Max. :423.3</td>
+<td style="text-align: left;">Max. :5.26478</td>
+<td style="text-align: left;">Max. :6.881</td>
+<td style="text-align: left;">Max. :8.261</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Checks for values of variables and any missing observations: There are no missing observations here, and so the data set is complete. This is a more in depth summary of the data set, so feel free to review it.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-hover table-striped caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">skim_type</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">skim_variable</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">n_missing</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">complete_rate</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Date.min</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Date.max</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Date.median</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Date.n_unique</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">character.min</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">character.max</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">character.empty</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">character.n_unique</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">character.whitespace</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">factor.ordered</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">factor.n_unique</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">factor.top_counts</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">numeric.mean</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">numeric.sd</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">numeric.p0</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">numeric.p25</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">numeric.p50</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">numeric.p75</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">numeric.p100</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">numeric.hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Date</td>
+<td style="text-align: left;">date</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">2003-04-01</td>
+<td style="text-align: left;">2025-10-01</td>
+<td style="text-align: left;">2013-01-01</td>
+<td style="text-align: right;">55</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">character</td>
+<td style="text-align: left;">year_quarter</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">55</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">factor</td>
+<td style="text-align: left;">is_recession</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">0: 51, 1: 4</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">factor</td>
+<td style="text-align: left;">pres_party</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">1: 31, 0: 24</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">factor</td>
+<td style="text-align: left;">house_party</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">0: 36, 1: 19</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">factor</td>
+<td style="text-align: left;">senate_party</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">1: 34, 0: 21</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">mortgage</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">8.9118182</td>
+<td style="text-align: right;">1.7784472</td>
+<td style="text-align: right;">5.0800000</td>
+<td style="text-align: right;">8.1100000</td>
+<td style="text-align: right;">8.7000000</td>
+<td style="text-align: right;">9.250000</td>
+<td style="text-align: right;">13.170000</td>
+<td style="text-align: left;">▂▅▇▁▂</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">he_revolving</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">0.5006727</td>
+<td style="text-align: right;">0.1280749</td>
+<td style="text-align: right;">0.2600000</td>
+<td style="text-align: right;">0.4010000</td>
+<td style="text-align: right;">0.5000000</td>
+<td style="text-align: right;">0.615000</td>
+<td style="text-align: right;">0.710000</td>
+<td style="text-align: left;">▆▇▆▇▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">auto_loan</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">1.0203636</td>
+<td style="text-align: right;">0.3306656</td>
+<td style="text-align: right;">0.6200000</td>
+<td style="text-align: right;">0.7450000</td>
+<td style="text-align: right;">0.8200000</td>
+<td style="text-align: right;">1.275000</td>
+<td style="text-align: right;">1.670000</td>
+<td style="text-align: left;">▇▁▂▂▂</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">credit_card</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">0.8041273</td>
+<td style="text-align: right;">0.1448990</td>
+<td style="text-align: right;">0.6600000</td>
+<td style="text-align: right;">0.7000000</td>
+<td style="text-align: right;">0.7600000</td>
+<td style="text-align: right;">0.840500</td>
+<td style="text-align: right;">1.280000</td>
+<td style="text-align: left;">▇▆▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">student_loan</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">1.0252545</td>
+<td style="text-align: right;">0.4538163</td>
+<td style="text-align: right;">0.2400000</td>
+<td style="text-align: right;">0.6600000</td>
+<td style="text-align: right;">0.9900000</td>
+<td style="text-align: right;">1.470000</td>
+<td style="text-align: right;">1.660000</td>
+<td style="text-align: left;">▅▃▅▃▇</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">other</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">0.4011636</td>
+<td style="text-align: right;">0.0687574</td>
+<td style="text-align: right;">0.3000000</td>
+<td style="text-align: right;">0.3400000</td>
+<td style="text-align: right;">0.4000000</td>
+<td style="text-align: right;">0.421500</td>
+<td style="text-align: right;">0.560000</td>
+<td style="text-align: left;">▇▅▇▁▂</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">total</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">12.6611091</td>
+<td style="text-align: right;">2.5669611</td>
+<td style="text-align: right;">7.3800000</td>
+<td style="text-align: right;">11.4700000</td>
+<td style="text-align: right;">12.1300000</td>
+<td style="text-align: right;">13.605000</td>
+<td style="text-align: right;">18.780000</td>
+<td style="text-align: left;">▂▇▇▂▂</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">consumer_sentiment</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">80.0957576</td>
+<td style="text-align: right;">12.6718785</td>
+<td style="text-align: right;">52.5000000</td>
+<td style="text-align: right;">71.5666667</td>
+<td style="text-align: right;">77.5000000</td>
+<td style="text-align: right;">92.633333</td>
+<td style="text-align: right;">98.933333</td>
+<td style="text-align: left;">▂▅▇▅▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">unemployment_rate</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">5.9142424</td>
+<td style="text-align: right;">2.0512227</td>
+<td style="text-align: right;">3.5333333</td>
+<td style="text-align: right;">4.1666667</td>
+<td style="text-align: right;">5.0000000</td>
+<td style="text-align: right;">7.766667</td>
+<td style="text-align: right;">9.933333</td>
+<td style="text-align: left;">▇▃▂▂▃</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">cpi_index_avg</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">238.3928121</td>
+<td style="text-align: right;">36.3159729</td>
+<td style="text-align: right;">183.0666667</td>
+<td style="text-align: right;">213.6778333</td>
+<td style="text-align: right;">232.0450000</td>
+<td style="text-align: right;">253.048333</td>
+<td style="text-align: right;">325.547000</td>
+<td style="text-align: left;">▅▇▅▂▂</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">personal_savings_rate</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">5.5551515</td>
+<td style="text-align: right;">2.1241335</td>
+<td style="text-align: right;">1.8000000</td>
+<td style="text-align: right;">4.5666667</td>
+<td style="text-align: right;">5.5000000</td>
+<td style="text-align: right;">6.616667</td>
+<td style="text-align: right;">15.033333</td>
+<td style="text-align: left;">▂▇▂▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">cc_interest_rate</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">14.0168485</td>
+<td style="text-align: right;">2.7304713</td>
+<td style="text-align: right;">11.8300000</td>
+<td style="text-align: right;">12.3733333</td>
+<td style="text-align: right;">13.2033333</td>
+<td style="text-align: right;">14.531667</td>
+<td style="text-align: right;">21.676667</td>
+<td style="text-align: left;">▇▃▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">hiring_rate</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3.6333333</td>
+<td style="text-align: right;">0.3727332</td>
+<td style="text-align: right;">2.8666667</td>
+<td style="text-align: right;">3.3000000</td>
+<td style="text-align: right;">3.6666667</td>
+<td style="text-align: right;">3.866667</td>
+<td style="text-align: right;">4.533333</td>
+<td style="text-align: left;">▂▇▇▃▂</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">job_turnover_rate</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">336.6484848</td>
+<td style="text-align: right;">28.4750572</td>
+<td style="text-align: right;">267.6666667</td>
+<td style="text-align: right;">324.3333333</td>
+<td style="text-align: right;">336.3333333</td>
+<td style="text-align: right;">350.000000</td>
+<td style="text-align: right;">423.333333</td>
+<td style="text-align: left;">▂▅▇▂▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">eff_fed_funds_rate</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">1.6676954</td>
+<td style="text-align: right;">1.8702481</td>
+<td style="text-align: right;">0.0722222</td>
+<td style="text-align: right;">0.1297466</td>
+<td style="text-align: right;">0.7668132</td>
+<td style="text-align: right;">2.791603</td>
+<td style="text-align: right;">5.264783</td>
+<td style="text-align: left;">▇▂▁▁▂</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">mortgage_rate</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">4.9174948</td>
+<td style="text-align: right;">1.1498557</td>
+<td style="text-align: right;">2.9602429</td>
+<td style="text-align: right;">3.9866547</td>
+<td style="text-align: right;">4.6562656</td>
+<td style="text-align: right;">5.982376</td>
+<td style="text-align: right;">6.880877</td>
+<td style="text-align: left;">▅▇▅▃▆</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">auto_loan_rate</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">5.9327944</td>
+<td style="text-align: right;">1.3422187</td>
+<td style="text-align: right;">4.1488668</td>
+<td style="text-align: right;">4.8250290</td>
+<td style="text-align: right;">5.6909053</td>
+<td style="text-align: right;">7.091740</td>
+<td style="text-align: right;">8.260802</td>
+<td style="text-align: left;">▇▃▂▃▅</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The data follows a positive linear trend, so I only include the minimum, maximum, and median values. The values are represented in trillions of dollars.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-hover table-striped caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Metric</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">min_debt</td>
+<td style="text-align: right;">7.38</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">max_debt</td>
+<td style="text-align: right;">18.78</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">median_debt</td>
+<td style="text-align: right;">12.13</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Here is a better representation of consumer debt over time. This shows the rate of change for total consumer debt on a quarterly basis. The growth over time stays relatively consistent where the max surge is likely caused by periods of financial stress, such as the recessions in 2008 and 2020.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-hover table-striped caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Metric</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">avg_growth</td>
+<td style="text-align: right;">1.777309</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">max_surge</td>
+<td style="text-align: right;">9.656085</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">volatility</td>
+<td style="text-align: right;">2.623052</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Here we can see the rise in total consumer debt over time. We can see a decline after the 2008 housing market crash, which would be the result in delinquencies following that crisis. After that, there is a steady rise in consumer debt following the event, and sharper rise following 2020, a result of the events that took place during COVID-19. What’s interesting is that there is a sharp rise in debt before the housing market crash in 2008, which closely resembles the sharp rise in debt following COVID-19 in 2020. Whether this implies an upcoming recession is up for debate, but it is worth noting considering recent events. I go into further detail below in my EDA, as well as in my conclusion.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="consumer_debt_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="2400"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Below we can see consumer debt broken down into their individual categories. Mortgage debt is significantly larger than any other category, which isn’t surprising considering recent home valuations. Following mortgage debt, we have auto and student loans as well as credit card debt, which over the past 3-4 years has been growing at a faster pace. This would be a result of the increase in the effective federal funds rate and rise in inflation, which is discussed further below.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="consumer_debt_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="2400"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This gives us a closer look of auto and student loans along with credit card debt. A mix of high interest rates, high costs for vehicles, and longer loan times has contributed to the rise in auto loans. Inflation has lead to an increasing reliance on credit card use and high interest rates have made it difficult to pay off their balances. Payments for student loans were paused during COVID-19 and resumed around 2023. Many are struggling to pay off their student loans due to a lack of job opportunities in a slowing job market.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="consumer_debt_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="2400"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Here we can see a comparison of interest rates over time. The effective federal funds rate is the baseline of all borrowing costs and therefore, auto and student loans, mortgage rates and credit card interest rates are highly correlated. It’s a little redundant using the different interest rates as predictors of consumer debt over time, but it’s worth noting the variations in rates over time. Student loan interest rates are not included as they are legally tied to the federal funds rate. The effective federal funds rate tends to rise faster than the other three. Consumer borrowing interest rates stay low due to competition, but still rise over time, though not as dramatically.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="consumer_debt_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="2400"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Here we look at the total consumer debt and the growth rate in consumer debt in relation to whether or not the economy is expanding or contracting. We can see higher debt levels during times of economic expansion, which makes sense as consumers typically spend more during times of growth when compared to times of economic contraction and uncertainty. It’s worth noting that data points during a recession are far fewer when compared to data points I have during times of economic expansion. That being said, it’s a nice graphical representation of debt expanding and contracting as shown below. We can see debt in its expansion phase has an upward trend, with far more outliers on the high side.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="consumer_debt_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="2400"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Below we can see a representation of consumer debt under Democrat and Republican control. It appears that the overall debt is higher under Democrat control. Under Republican control, you can see that the average debt is slightly lower for House control, but higher for Presidential and Senate control. Since the data for total consumer debt is a linear upward trend it will naturally have higher debt levels for the most recent party. A better representation would be to show the growth rate of debt over time under political control, which you can find below. I wanted to include this to see how debt is affected by political parties.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="consumer_debt_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="2400"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This gives us a better idea of the growth rate in debt under each party. It would appear that growth in consumer debt tends to rise faster under Republican control when compared to Democrat control. The growth in debt by political party can be influenced by a number of factors, such as fiscal policy or world events. Overall, both parties show growth in total consumer debt and the differences are minimal.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="consumer_debt_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid figure-img" width="2400"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Here I have some side by side comparisons of the hiring rate, job turn over rate, average CPI, personal savings rate and total consumer debt. You can see that total consumer debt and average CPI have a strong correlation here, which makes sense; as the price of goods and services increase, so does the total debt. Unemployment rate seems to be on a slight upward trend as of recently, but still remains relatively low compared to prior years. It seems that personal savings rate, job turnover rate, and hiring rate have a high correlation as well, which could be explained by the hiring spree in 2020 as well as COVID-19 relief aid given out at that time. Looking at the charts here, there is a decline in those areas I mentioned during times of economic contraction. We are seeing that trend again in recent years, suggesting an upcoming economic contraction. You can see some stability in total debt, personal savings rate and job turnover rate between 2010 and 2018. Hiring rate remained on an upward trend from 2010 until roughly 2022, which is now in a sharp decline.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="consumer_debt_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="2400"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="model-selection-process" class="level2">
+<h2 class="anchored" data-anchor-id="model-selection-process">Model Selection Process</h2>
+<p>I decided to run best subset first to find the best combination of predictors for my model. We can see that the predictors on line 7 are the best combination here: unemployment_rate, cpi_index_avg, personal_savings_rate, is_recession, house_party, mortgage rate, and effective federal funds rate. I’m surprised the credit card interest rate didn’t make the cut here, though it is tied to the effective federal funds (EFF) rate, so using it may be redundant. That being said, mortgage rate is being included, indicating that even if it is tied to the EFF rate, the fact that mortgage debt makes up a very large portion of consumer debt, it is a significant predictor for total consumer debt. What’s more surprising is that house party seemed to be an important predictor in total consumer debt, while the senate and presidential party are not. This is most likely because the House house the power of initiating spending bills, which may have impact on consumer spending.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>          consumer_sentiment unemployment_rate cc_interest_rate cpi_index_avg
+1  ( 1 )  " "                " "               " "              "*"          
+2  ( 1 )  " "                " "               " "              "*"          
+3  ( 1 )  " "                " "               " "              "*"          
+4  ( 1 )  " "                " "               " "              "*"          
+5  ( 1 )  " "                " "               " "              "*"          
+6  ( 1 )  " "                "*"               " "              "*"          
+7  ( 1 )  " "                "*"               " "              "*"          
+8  ( 1 )  " "                "*"               " "              "*"          
+9  ( 1 )  " "                "*"               " "              "*"          
+10  ( 1 ) " "                "*"               " "              "*"          
+11  ( 1 ) " "                "*"               " "              "*"          
+12  ( 1 ) " "                "*"               "*"              "*"          
+13  ( 1 ) " "                "*"               "*"              "*"          
+14  ( 1 ) "*"                "*"               "*"              "*"          
+          personal_savings_rate is_recession1 pres_party1 house_party1
+1  ( 1 )  " "                   " "           " "         " "         
+2  ( 1 )  " "                   " "           " "         "*"         
+3  ( 1 )  " "                   " "           " "         "*"         
+4  ( 1 )  " "                   "*"           " "         "*"         
+5  ( 1 )  " "                   "*"           " "         "*"         
+6  ( 1 )  "*"                   "*"           " "         "*"         
+7  ( 1 )  "*"                   "*"           " "         "*"         
+8  ( 1 )  "*"                   "*"           "*"         "*"         
+9  ( 1 )  "*"                   "*"           "*"         "*"         
+10  ( 1 ) "*"                   "*"           "*"         "*"         
+11  ( 1 ) "*"                   "*"           "*"         "*"         
+12  ( 1 ) "*"                   "*"           "*"         "*"         
+13  ( 1 ) "*"                   "*"           "*"         "*"         
+14  ( 1 ) "*"                   "*"           "*"         "*"         
+          senate_party1 hiring_rate job_turnover_rate mortgage_rate
+1  ( 1 )  " "           " "         " "               " "          
+2  ( 1 )  " "           " "         " "               " "          
+3  ( 1 )  " "           " "         " "               " "          
+4  ( 1 )  " "           " "         " "               " "          
+5  ( 1 )  " "           "*"         " "               " "          
+6  ( 1 )  " "           " "         " "               " "          
+7  ( 1 )  " "           " "         " "               "*"          
+8  ( 1 )  " "           " "         " "               "*"          
+9  ( 1 )  " "           "*"         " "               "*"          
+10  ( 1 ) " "           "*"         "*"               "*"          
+11  ( 1 ) " "           "*"         "*"               "*"          
+12  ( 1 ) " "           "*"         "*"               "*"          
+13  ( 1 ) "*"           "*"         "*"               "*"          
+14  ( 1 ) "*"           "*"         "*"               "*"          
+          eff_fed_funds_rate auto_loan_rate
+1  ( 1 )  " "                " "           
+2  ( 1 )  " "                " "           
+3  ( 1 )  " "                "*"           
+4  ( 1 )  "*"                " "           
+5  ( 1 )  "*"                " "           
+6  ( 1 )  "*"                " "           
+7  ( 1 )  "*"                " "           
+8  ( 1 )  "*"                " "           
+9  ( 1 )  "*"                " "           
+10  ( 1 ) "*"                " "           
+11  ( 1 ) "*"                "*"           
+12  ( 1 ) "*"                "*"           
+13  ( 1 ) "*"                "*"           
+14  ( 1 ) "*"                "*"           </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 7</code></pre>
+</div>
+</div>
+<p>This is a visual representation of the best subset, where the top line shows which predictors carry the most weight in predicting total consumer debt. Note that the black boxes indicate useful predictors and white boxes indicate those that are not.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="consumer_debt_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid figure-img" width="2400"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Having used the best subset selection it is worth noting that the data set I have is fairly small, with only 23 variables and 55 observations, so the risk of overfitting is high. Using LASSO (Least Absolute Shrinkage and Selection Operator) we can identify and drop predictors that don’t add any value to my model. We can see that a model with 7 predictors has the best predictive power without an overly complex model. For clarification LASSO works by adding a penalty to the model for each predictor included. It acts as a budget for the model, limiting the amount ‘spent’ on predictors, forcing the least useful ones out by forcing its coefficient down to zero. This helps clear out the ‘noise’ from our data set, making sure only the useful predictors stay. Before the penalty is applied, the predictors are standardized, so predictors on different scales are treated fairly. We use cv.glmnet() for this, where standardize argument is set to TRUE by default.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="consumer_debt_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid figure-img" width="2400"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We can see that the LASSO method dropped unemployment rate, credit card interest rate, job turnover rate, mortgage rate, presidential party, and auto loan as predictors. Comparing the two models, there is a difference in the selection of predictors. In the LASSO method, unemployment and mortgage rate are dropped, but keeps consumer sentiment, senate party and hiring rate. Best Subset keeps unemployment rate and mortgage rate, but drops senate party, consumer sentiment and hiring rate as predictors. Both methods agree on average CPI, effective federal funds rate, personal savings rate, recession, and house party as predictors.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>15 x 1 sparse Matrix of class "dgCMatrix"
+                        lambda.min
+(Intercept)           -2.560106452
+consumer_sentiment    -0.003633343
+unemployment_rate      .          
+cc_interest_rate       .          
+cpi_index_avg          0.065120779
+personal_savings_rate -0.011746208
+is_recession1          0.636177842
+pres_party1            .          
+house_party1           0.897842543
+senate_party1          0.104433760
+hiring_rate           -0.180673339
+job_turnover_rate      .          
+mortgage_rate          .          
+eff_fed_funds_rate     0.173061250
+auto_loan_rate         .          </code></pre>
+</div>
+</div>
+<p>This is an evaluation on the LASSO models performance on the test data. We can see the RMSE is roughly 0.459, suggesting this model is off by about $459 billion. I use these predictors below in my multiple linear regression model and random forest model below and discuss the results further in my interpretation of the models.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-hover table-striped caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: right;" data-quarto-table-cell-role="th">x</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0.458844</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="linear-regression-model-construction-with-single-predictor" class="level2">
+<h2 class="anchored" data-anchor-id="linear-regression-model-construction-with-single-predictor">Linear Regression Model Construction with Single Predictor</h2>
+<p>Below I have my linear regression model with a single predictor. I use average consumer price index of all consumer goods and services to explain total consumer debt over time. This explains roughly 90% of total consumer debt, which makes sense since they are highly correlated. That being said, it isn’t the only predictor of consumer debt, as I’ll show in my multiple linear regression model below.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-hover table-striped caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: right;" data-quarto-table-cell-role="th">r.squared</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">adj.r.squared</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">sigma</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">statistic</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">p.value</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">df</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">logLik</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">AIC</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">BIC</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">deviance</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">df.residual</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">nobs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0.9107281</td>
+<td style="text-align: right;">0.9090437</td>
+<td style="text-align: right;">0.7741689</td>
+<td style="text-align: right;">540.6916</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-62.9449</td>
+<td style="text-align: right;">131.8898</td>
+<td style="text-align: right;">137.9118</td>
+<td style="text-align: right;">31.76489</td>
+<td style="text-align: right;">53</td>
+<td style="text-align: right;">55</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Here we see how well the model generalizes by predicting the consumer debt for the test set and computing standard regression metrics such as RMSE and R squared. The RMSE shows we are off by about $877 billion.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-hover table-striped caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">.metric</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">.estimator</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">.estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">rmse</td>
+<td style="text-align: left;">standard</td>
+<td style="text-align: right;">0.8774528</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">rsq</td>
+<td style="text-align: left;">standard</td>
+<td style="text-align: right;">0.9100208</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">mae</td>
+<td style="text-align: left;">standard</td>
+<td style="text-align: right;">0.7113023</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Here is a reassessment of the single linear regression model using cross-validation.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-hover table-striped caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">.metric</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">.estimator</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">mean</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">n</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">std_err</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">.config</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">rmse</td>
+<td style="text-align: left;">standard</td>
+<td style="text-align: right;">0.7371998</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.1030179</td>
+<td style="text-align: left;">pre0_mod0_post0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">rsq</td>
+<td style="text-align: left;">standard</td>
+<td style="text-align: right;">0.8227565</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0816598</td>
+<td style="text-align: left;">pre0_mod0_post0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="linear-regression-model-construction-with-multiple-predictors-from-best-subset-selection" class="level2">
+<h2 class="anchored" data-anchor-id="linear-regression-model-construction-with-multiple-predictors-from-best-subset-selection">Linear Regression Model Construction with Multiple Predictors from Best Subset Selection</h2>
+<p>Below is the linear regression model with multiple predictors picked from the best subset selection process. Below the results here I have a separate model for the predictors chosen with the LASSO method. The improvement in performance of this model is significant, having nearly half the score in AIC, suggesting this model is the better choice over the single linear regression model. The adjusted r-squared value explains nearly 98% of the variance in the data points. The deviance from the regression line is far smaller as well, emphasizing the predictive power of this model.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-hover table-striped caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: right;" data-quarto-table-cell-role="th">r.squared</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">adj.r.squared</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">sigma</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">statistic</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">p.value</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">df</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">logLik</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">AIC</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">BIC</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">deviance</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">df.residual</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">nobs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0.9818944</td>
+<td style="text-align: right;">0.9791978</td>
+<td style="text-align: right;">0.3702319</td>
+<td style="text-align: right;">364.1257</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">-19.06961</td>
+<td style="text-align: right;">56.13921</td>
+<td style="text-align: right;">74.20521</td>
+<td style="text-align: right;">6.442369</td>
+<td style="text-align: right;">47</td>
+<td style="text-align: right;">55</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>We see an improvement in the prediction error as well, validating my observation that the multiple linear regression model here is superior than the simple linear regression model.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-hover table-striped caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">.metric</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">.estimator</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">.estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">rmse</td>
+<td style="text-align: left;">standard</td>
+<td style="text-align: right;">0.5156864</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">rsq</td>
+<td style="text-align: left;">standard</td>
+<td style="text-align: right;">0.9713807</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">mae</td>
+<td style="text-align: left;">standard</td>
+<td style="text-align: right;">0.3783090</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Here is a reassessment of the multiple linear regression model using cross-validation</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-hover table-striped caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">.metric</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">.estimator</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">mean</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">n</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">std_err</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">.config</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">rmse</td>
+<td style="text-align: left;">standard</td>
+<td style="text-align: right;">0.4107650</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0503254</td>
+<td style="text-align: left;">pre0_mod0_post0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">rsq</td>
+<td style="text-align: left;">standard</td>
+<td style="text-align: right;">0.9229283</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0448652</td>
+<td style="text-align: left;">pre0_mod0_post0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="linear-regression-model-construction-with-multiple-predictors-from-lasso-method" class="level2">
+<h2 class="anchored" data-anchor-id="linear-regression-model-construction-with-multiple-predictors-from-lasso-method">Linear Regression Model Construction with Multiple Predictors from LASSO method</h2>
+<p>Here we have the multiple linear regression model with the predictors chosen using the LASSO method. The results are nearly identical. I will keep this here as a reference point and a reminder that reliance on a single model is not advised. As I stated before, the size of my data set is small, so there is a risk of overfitting. Having both models is helpful in analyzing new data and making future predictions. The metrics below suggest that the multiple linear regression model with best subset is preferred, according to AIC.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-hover table-striped caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: right;" data-quarto-table-cell-role="th">r.squared</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">adj.r.squared</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">sigma</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">statistic</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">p.value</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">df</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">logLik</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">AIC</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">BIC</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">deviance</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">df.residual</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">nobs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0.9796904</td>
+<td style="text-align: right;">0.9766656</td>
+<td style="text-align: right;">0.3921189</td>
+<td style="text-align: right;">323.8825</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">-22.22856</td>
+<td style="text-align: right;">62.45712</td>
+<td style="text-align: right;">80.52312</td>
+<td style="text-align: right;">7.226591</td>
+<td style="text-align: right;">47</td>
+<td style="text-align: right;">55</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>You can see a minor improvement here in the RMSE, an error in prediction of $477 billion.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-hover table-striped caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">.metric</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">.estimator</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">.estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">rmse</td>
+<td style="text-align: left;">standard</td>
+<td style="text-align: right;">0.4775492</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">rsq</td>
+<td style="text-align: left;">standard</td>
+<td style="text-align: right;">0.9752098</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">mae</td>
+<td style="text-align: left;">standard</td>
+<td style="text-align: right;">0.3836004</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-hover table-striped caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">.metric</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">.estimator</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">mean</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">n</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">std_err</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">.config</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">rmse</td>
+<td style="text-align: left;">standard</td>
+<td style="text-align: right;">0.4393065</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0542062</td>
+<td style="text-align: left;">pre0_mod0_post0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">rsq</td>
+<td style="text-align: left;">standard</td>
+<td style="text-align: right;">0.9269904</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0392067</td>
+<td style="text-align: left;">pre0_mod0_post0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="random-forest-model-construction-with-all-predictors" class="level2">
+<h2 class="anchored" data-anchor-id="random-forest-model-construction-with-all-predictors">Random Forest Model Construction with all Predictors</h2>
+<p>Here we have a random forest model using all predictors. This model performs marginally better than the simple linear regression model, but fails to outperform the multiple linear regression model.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-hover table-striped caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">.metric</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">.estimator</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">mean</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">n</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">std_err</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">.config</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">rmse</td>
+<td style="text-align: left;">standard</td>
+<td style="text-align: right;">0.6682052</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.1474410</td>
+<td style="text-align: left;">pre0_mod0_post0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">rsq</td>
+<td style="text-align: left;">standard</td>
+<td style="text-align: right;">0.9096837</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0431051</td>
+<td style="text-align: left;">pre0_mod0_post0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>With this model we can see that average CPI is the most important predictor, followed by credit card interest rate, which is interesting considering that both the best subset and LASSO method excluded credit card interest rate. This aligns with my intuition in thinking that credit card interest rate would play a role in predicting consumer debt, considering it sits at roughly 21%. Though credit card debt is not as large as the other types of debt, the high interest rate has compounding power, as I mentioned earlier in my report.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="consumer_debt_files/figure-html/unnamed-chunk-36-1.png" class="img-fluid figure-img" width="2400"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="random-forest-model-construction-with-best-subset-selection" class="level2">
+<h2 class="anchored" data-anchor-id="random-forest-model-construction-with-best-subset-selection">Random Forest Model Construction with Best Subset Selection</h2>
+<p>Here we have a random forest model using the predictors from best subset selection. This model performs marginally better than the simple linear regression model, but worse than the random forest model with all predictors included. It fails to outperform the multiple linear regression model.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-hover table-striped caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">.metric</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">.estimator</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">mean</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">n</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">std_err</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">.config</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">rmse</td>
+<td style="text-align: left;">standard</td>
+<td style="text-align: right;">0.7244483</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.1445600</td>
+<td style="text-align: left;">pre0_mod0_post0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">rsq</td>
+<td style="text-align: left;">standard</td>
+<td style="text-align: right;">0.9144474</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0416959</td>
+<td style="text-align: left;">pre0_mod0_post0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The order of importance here is similar to that of the above model with all predictors included.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="consumer_debt_files/figure-html/unnamed-chunk-38-1.png" class="img-fluid figure-img" width="2400"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="random-forest-model-construction-with-lasso-method" class="level2">
+<h2 class="anchored" data-anchor-id="random-forest-model-construction-with-lasso-method">Random Forest Model Construction with LASSO method</h2>
+<p>Here we see the random forest model with predictors from the LASSO method. This performed worse than all of the other models. This doesn’t necessarily suggest that the predictors we used here are not useful, but may just indicate the random forest model is not a good fit for estimating the observed data and a less complex model would be best for estimating total consumer debt.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-hover table-striped caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">.metric</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">.estimator</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">mean</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">n</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">std_err</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">.config</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">rmse</td>
+<td style="text-align: left;">standard</td>
+<td style="text-align: right;">0.8866642</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.1538021</td>
+<td style="text-align: left;">pre0_mod0_post0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">rsq</td>
+<td style="text-align: left;">standard</td>
+<td style="text-align: right;">0.8648089</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0801525</td>
+<td style="text-align: left;">pre0_mod0_post0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The change in importance here is only a result of the exclusion of predictors. Average CPI and interest rates remain the most important here.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="consumer_debt_files/figure-html/unnamed-chunk-40-1.png" class="img-fluid figure-img" width="2400"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="model-performance-assessment" class="level2">
+<h2 class="anchored" data-anchor-id="model-performance-assessment">Model Performance Assessment</h2>
+<p>In this section, I reassess the three previously constructed models using 10-fold cross-validation. This provides a more robust estimate of how the models will perform on unseen data compared to the single validation split used in previous assignments. The multiple linear regression model outperforms the simple linear regression and the random forest model. The combination of predictors from the best subset selection used in multiple linear regression have high accuracy in predicting consumer debt.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-hover table-striped caption-top table-sm small">
+<caption>Cross-Validation Performance Comparison (RMSE)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">model</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">mean</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">std_err</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Multiple Linear Regression</td>
+<td style="text-align: right;">0.4107650</td>
+<td style="text-align: right;">0.0503254</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">LASSO MLR</td>
+<td style="text-align: right;">0.4393065</td>
+<td style="text-align: right;">0.0542062</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Random Forest</td>
+<td style="text-align: right;">0.6682052</td>
+<td style="text-align: right;">0.1474410</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Best Subset Random Forest</td>
+<td style="text-align: right;">0.7244483</td>
+<td style="text-align: right;">0.1445600</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Simple Linear Regression</td>
+<td style="text-align: right;">0.7371998</td>
+<td style="text-align: right;">0.1030179</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Lasso RF</td>
+<td style="text-align: right;">0.8866642</td>
+<td style="text-align: right;">0.1538021</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="model-interpretation-and-inference" class="level2">
+<h2 class="anchored" data-anchor-id="model-interpretation-and-inference">Model Interpretation and Inference</h2>
+<p>The multiple linear regression model with predictors from best subset selection outperforms all other models, having the lowest prediction error. The multiple linear regression model with predictors from the LASSO method is a close second, followed by the random forest model with all predictors. Random forest models typically perform well, but the limited size of the data set may have impacted performance. It could also suggest that less complex models are better equipped in predicting total debt with the provided predictors. The random forest model with predictors from the LASSO method performed the worst out of all models. The complexity of this model may have contributed to its poor performance.</p>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>I’d like to point out that after extensively testing and training my models here, that unseen events could have a substantial impact on consumer debt levels that cannot be explained by my models here. Such events could include the current situation with oil supply constraints, which could lead to a cascading set of negative events that could lead to either a substantial rise in debt, or lead to delinquencies and defaults lowering the debt, but erasing capital throughout the economy. An issue I would like to point out with my model is the way the data is split for training and testing. In hindsight, I should have used the most recent data for testing and past data for training, which would have made for a more reliable model in terms of predictive power. Random splitting is standard for general regression, but time-series splitting (back testing) is preferred for economic forecasting to avoid ‘look-ahead bias’. The proportion of data I used for training from the data set is 60%, which I believe to be a appropriate amount considering the size of the data set.</p>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
+<p>James, Gareth; Witten, Daniela; Hastie, Trevor; Tibshirani, Robert. “An Introduction to Statistical Learning: with Applications in R” (Springer Texts in Statistics)</p>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

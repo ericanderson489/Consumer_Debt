@@ -1,0 +1,816 @@
+---
+title: "The Rise in Consumer Debt"
+author: "Eric Anderson"
+email: "eric.anderson16@snhu.edu"
+affiliations: 
+name: "Southern New Hampshire University"
+date: today
+date-format: long
+theme: darkly
+toc: true
+format: html
+---
+
+```{r}
+#| label: setup
+#| echo: false
+#| include: false
+train <- read.csv("final_consumer_debt_updated.csv")
+
+library(vip)
+library(yardstick)
+library(glmnet)
+library(leaps)
+library(readr)
+library(tidyverse)
+library(tidymodels)
+library(patchwork)
+library(kableExtra)
+library(janitor)
+library(lubridate)
+library(skimr)
+library(scales)
+library("ranger")
+library(randomForest)
+knitr::opts_chunk$set(
+  fig.width = 8,
+  fig.height = 5,
+  dpi = 300
+)
+train$date <- as.Date(train$date, format = "%Y-%m-%d")
+train$is_recession <- as.factor(train$is_recession)
+train$pres_party <- as.factor(train$pres_party)
+train$house_party <- as.factor(train$house_party)
+train$senate_party <- as.factor(train$senate_party)
+options(kable_styling_bootstrap_options = c("hover", "striped"))
+theme_set(theme_bw(base_size = 14))
+```
+
+```{r}
+#| include: false
+# This chunk of code is for single and multiple linear regression models. 
+# It is kept for reference and not used for the random forest models.
+set.seed(104)
+data_splits <- initial_split(train, prop = 0.60)
+lr_train <- training(data_splits)
+lr_temp <- testing(data_splits)
+set.seed(402)
+lr_temp_splits <- initial_split(lr_temp, prop = 0.5)
+lr_validation <- training(lr_temp_splits)
+lr_test <- testing(lr_temp_splits)
+```
+
+```{r}
+#| include: false
+# This chunk of code is for the random forest models
+set.seed(234)
+rf_data_splits <- initial_split(train, prop = 0.60) 
+rf_train <- training(rf_data_splits)
+rf_test  <- testing(rf_data_splits)
+
+# Cross-Validation Folds from the Train set
+set.seed(896)
+rf_debt_folds <- vfold_cv(rf_train, v = 10)
+```
+
+## Statement of Purpose
+The purpose of this project is to predict and explain the rise in consumer debt over the past 20 years. The goal is to not only understand the underlying trends, but also to analyze the macroeconomic and political factors driving the rise in consumer debt. Understanding the main contributing factors responsible for rising consumer debt can help us better address this problem and to help lower the total debt or at least slow the rate at which it is accumulated.  
+
+## Executive Summary
+From the models I tested, the multiple linear regression model with predictors from best subset selection is the best-performing model in predicting total consumer debt, having the lowest prediction error, with a CV-RMSE of 0.410, compared to the Random Forest model with all predictors, a CV-RMSE of 0.709, and for the Single Linear Regression model, a CV-RMSE of 0.737. This suggests that a combination of economic and political factors have better predicting power than single predictors or more complex models than the random forest model. 
+
+## Introduction
+The data set contains 55 observations and 23 variables. The variable we aim to explain is total, which represents the total amount of consumer debt represented in trillions of dollars.
+
+Please note that the is_recession variable is represented as 0's and 1's, where 0 represents no recession, and 1 represents a recession. A recession is defined as two consecutive quarters of negative GDP growth, a decline in consumer spending, a decline in consumer sentiment, and a rise in unemployment.
+
+For the variables, pres_party, house_party, and senate_party, 0 represents Republican control and 1 represents Democrat control. Fiscal policy and government spending is influenced by political party control, which can influence consumer spending habits. 
+
+## Exploratory Data Analysis
+Below is an overview of the data set.
+
+Number of Observations and Features: The data set here is relatively small, since it covers total consumer debt from 01-01-2003 to 10-01-2025. Of the 23 variables here, 14 will be used as potential predictors while the other 8 will be used for supplemental purposes in exploring the data. The remaining variable is the total consumer debt, our quantitative value we aim to predict. 
+```{r}
+#| echo: false
+lr_train |>
+  dim() |>
+  kable() |>
+  kable_styling()
+```
+
+First Six Rows of the Data Set: As you can see from the first six rows of the data set the dates are out of order. It is kept this way for training purposes, but as you'll see below I organize it for graphing purposes.
+```{r}
+#| echo: false
+lr_train |>
+  head() |>
+  kable() |>
+  kable_styling()
+```
+
+Basic Structure of the Data Set: The majority of the variables here are numerical, along with a date, character, and a few variables that have been converted into factors. Here I check to see if the data is appropriately represented. The year_quarter can stay as a character type as I use the date variable for graphing purposes. I keep it as a reference point only. 
+```{r}
+#| echo: false
+lr_train |>
+  str() 
+```
+
+Names of the Features used in the Data Set: Most of the variable names here are self explanatory, but I'll give a basic explanation of some of the financial terms you may not be familiar with. HE (Home Equity) revolving debt is where you borrow against your home and use it to pay for goods and services. It is a secured type of debt that uses your home as collateral. The average CPI (Consumer Price Index) is used to track the average changes in cost of living. The effective federal funds rate is the baseline interest rate for borrowing costs set by the Federal Reserve.
+```{r}
+#| echo: false
+lr_train |>
+  names() |>
+  kable() |>
+  kable_styling()
+```
+
+Last Six Rows of the Data Set: This is just the tail end of the data set, a quick check to see if the end of the data set has any issues, which as you can see, it does not. 
+```{r}
+#| echo: false
+lr_train |>
+  tail() |>
+  kable() |>
+  kable_styling()
+```
+
+Summary of the Data Set: This is a nice overview of the numerical values in the data set. The total consumer debt covers a wide range, from 7.38 to 18.78 trillion dollars, a massive figure. You can see the mortgage debt makes up a large portion of that amount, ranging from 5.08 to 13.17 trillion. 
+For interest rates, the effective federal funds rate is relatively small when compared to the other interest rates, but increases from 0.07% to 5.26%, a nearly 75 times increase. This is massive when compared to the other interest rates included in my data set, where mortgage, auto loan, and credit card interest rates roughly double in size. It is worth noting that credit cards have the highest interest rates of 21.68%. Credit card debt has a max of 1.28 trillion dollars of the total consumer debt, a small figure comparatively, but the higher interest rate makes it difficult to pay off for the average consumer because of its compounding power. 
+```{r}
+#| echo: false
+summary(lr_train) |>
+  kable() |>
+  kable_styling()
+```
+
+Checks for values of variables and any missing observations: There are no missing observations here, and so the data set is complete. This is a more in depth summary of the data set, so feel free to review it. 
+```{r}
+#| echo: false
+skim(lr_train) |>
+  kable() |>
+  kable_styling()
+```
+
+The data follows a positive linear trend, so I only include the minimum, maximum, and median values. The values are represented in trillions of dollars. 
+```{r}
+#| echo: false
+lr_train |>
+  arrange(date) |>
+  summarize(
+    min_debt = min(total),
+    max_debt = max(total),
+    median_debt = median(total)
+  ) |>
+  pivot_longer(everything(),
+               names_to = "Metric",
+               values_to = "Value") |>
+  kable() |>
+  kable_styling()
+```
+
+Here is a better representation of consumer debt over time. This shows the rate of change for total consumer debt on a quarterly basis. The growth over time stays relatively consistent where the max surge is likely caused by periods of financial stress, such as the recessions in 2008 and 2020. 
+```{r}
+#| echo: false
+lr_train |> 
+  arrange(date) |>
+  mutate(debt_growth = (total - lag(total)) / lag(total) * 100) |>
+  summarize(
+    avg_growth = mean(debt_growth, na.rm = TRUE),
+    max_surge = max(debt_growth, na.rm = TRUE),
+    volatility = sd(debt_growth, na.rm = TRUE)
+  ) |>
+  pivot_longer(everything(),
+               names_to = "Metric",
+               values_to = "Value") |>
+  kable() |>
+  kable_styling()
+```
+
+Here we can see the rise in total consumer debt over time. We can see a decline after the 2008 housing market crash, which would be the result in delinquencies following that crisis. After that, there is a steady rise in consumer debt following the event, and sharper rise following 2020, a result of the events that took place during COVID-19. 
+What's interesting is that there is a sharp rise in debt before the housing market crash in 2008, which closely resembles the sharp rise in debt following COVID-19 in 2020. Whether this implies an upcoming recession is up for debate, but it is worth noting considering recent events. I go into further detail below in my EDA, as well as in my conclusion. 
+```{r}
+#| echo: false
+lr_train |>
+  arrange(date) |>
+  ggplot(aes(x = date)) +
+    geom_line(aes(y = total), color = "red") +
+    labs(
+      title = "Consumer Debt Over Time",
+      x = "Date",
+      y = "Debt"
+        )
+```
+
+Below we can see consumer debt broken down into their individual categories. Mortgage debt is significantly larger than any other category, which isn't surprising considering recent home valuations. Following mortgage debt, we have auto and student loans as well as credit card debt, which over the past 3-4 years has been growing at a faster pace. This would be a result of the increase in the effective federal funds rate and rise in inflation, which is discussed further below. 
+```{r}
+#| echo: false
+debt_long <- lr_train |>
+  arrange(date) |>
+  pivot_longer(
+    cols = c(other, student_loan, mortgage, auto_loan, credit_card, he_revolving),
+    names_to = "debt_type",
+    values_to = "amount"
+  )
+ggplot(debt_long, aes(x = date, y = amount, fill = debt_type)) +
+  geom_area(alpha = 0.8, position = "stack") +
+  scale_x_date(date_breaks = "2 years", date_labels = "%Y") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(
+    title = "Stacked Composition of U.S. Household Debt (2003-2025)",
+    x = "Year",
+    y = "Total Debt ($ Trillions)",
+    fill = "Debt Categories"
+  )
+```
+
+This gives us a closer look of auto and student loans along with credit card debt. A mix of high interest rates, high costs for vehicles, and longer loan times has contributed to the rise in auto loans. Inflation has lead to an increasing reliance on credit card use and high interest rates have made it difficult to pay off their balances. Payments for student loans were paused during COVID-19 and resumed around 2023. Many are struggling to pay off their student loans due to a lack of job opportunities in a slowing job market. 
+```{r}
+#| echo: false
+debt_autoStudentCredit <- lr_train |>
+  arrange(date) |>
+  pivot_longer(
+    cols = c(student_loan, auto_loan, credit_card),
+    names_to = "debt_type",
+    values_to = "amount"
+  )
+ggplot(debt_autoStudentCredit, aes(x = date, y = amount, fill = debt_type)) +
+  geom_area(alpha = 0.8, position = "stack") +
+  scale_x_date(date_breaks = "2 years", date_labels = "%Y") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(
+    title = "Auto Loans, Student Loans, and Credit Stacked (2003-2025)",
+    x = "Year",
+    y = "Combined Debt ($ Trillions)",
+    fill = "Debt Categories"
+  )
+```
+
+Here we can see a comparison of interest rates over time. The effective federal funds rate is the baseline of all borrowing costs and therefore, auto and student loans, mortgage rates and credit card interest rates are highly correlated. It's a little redundant using the different interest rates as predictors of consumer debt over time, but it's worth noting the variations in rates over time.  Student loan interest rates are not included as they are legally tied to the federal funds rate. 
+The effective federal funds rate tends to rise faster than the other three. Consumer borrowing interest rates stay low due to competition, but still rise over time, though not as dramatically. 
+```{r}
+#| echo: false
+df_long <- lr_train |>
+  arrange(date) |>
+  pivot_longer(
+    cols = c(cc_interest_rate, mortgage_rate, auto_loan_rate, eff_fed_funds_rate),
+    names_to = "interest_rate_type",
+    values_to = "percentage"
+  ) |>
+  mutate(interest_rate_type = recode(interest_rate_type,
+    "cc_interest_rate" = "Credit Card",
+    "mortgage_rate" = "30-Yr Mortgage",
+    "auto_loan_rate" = "Auto Loan",
+    "eff_fed_funds_rate" = "Fed Funds Rate"
+  ))
+ggplot(df_long, aes(x = date, y = percentage, color = interest_rate_type)) +
+  geom_line(linewidth = 1) +
+  scale_color_manual(values = c(
+    "Credit Card" = "red",    
+    "30-Yr Mortgage" = "green", 
+    "Auto Loan" = "orange",      
+    "Fed Funds Rate" = "blue"  
+  )) +
+  theme_minimal() +
+  labs(
+    title = "Comparison of Major Consumer Interest Rates",
+    subtitle = "Analysis of volatility and spreads across different loan types",
+    x = "Year",
+    y = "Interest Rate (%)",
+    color = "Rate Type"
+  ) +
+  theme(
+    legend.position = "bottom",
+    panel.grid.minor = element_blank()
+  )
+```
+
+Here we look at the total consumer debt and the growth rate in consumer debt in relation to whether or not the economy is expanding or contracting. We can see higher debt levels during times of economic expansion, which makes sense as consumers typically spend more during times of growth when compared to times of economic contraction and uncertainty. It's worth noting that data points during a recession are far fewer when compared to data points I have during times of economic expansion. That being said, it's a nice graphical representation of debt expanding and contracting as shown below. We can see debt in its expansion phase has an upward trend, with far more outliers on the high side. 
+```{r}
+#| echo: false
+recession_data <- lr_train |>
+  arrange(date) |>
+  mutate(
+    debt_growth = (total - lag(total)) / lag(total) * 100,
+    is_recession = factor(is_recession, levels = c("0", "1"),
+                          labels = c("Expansion", "Contraction"))
+  ) |>
+  filter(!is.na(debt_growth))
+
+total_plot <- ggplot(recession_data, aes(x = is_recession, y = total, fill = is_recession)) +
+  geom_boxplot(show.legend = FALSE) +
+  scale_fill_manual(values = c("Expansion" = "blue", "Contraction" = "red")) +
+  labs(title = "Total Debt", x = NULL, y = "Total Debt ($ Trillions)") +
+  theme_minimal()
+
+growth_plot <- ggplot(recession_data, aes(x = is_recession, y = debt_growth, fill = is_recession)) +
+  geom_boxplot(show.legend = FALSE) +
+  scale_fill_manual(values = c("Expansion" = "blue", "Contraction" = "red")) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray") +
+  labs(title = "Quarterly Growth Rate", x = NULL, y = "Quarterly Growth (%)") +
+  theme_minimal()
+
+total_plot / growth_plot +
+  plot_annotation(title = "Consumer Debt by Economic Conditions")
+```
+
+Below we can see a representation of consumer debt under Democrat and Republican control. It appears that the overall debt is higher under Democrat control. Under Republican control, you can see that the average debt is slightly lower for House control, but higher for Presidential and Senate control. Since the data for total consumer debt is a linear upward trend it will naturally have higher debt levels for the most recent party. A better representation would be to show the growth rate of debt over time under political control, which you can find below. I wanted to include this to see how debt is affected by political parties.  
+```{r}
+#| echo: false
+pres_plot <- lr_train |>
+  arrange(date) |>
+  mutate(pres_party = factor(pres_party, levels = c("0", "1"),
+                             labels = c("Republican", "Democrat"))) |>
+  ggplot(aes(x = pres_party, y = total, fill = pres_party)) +
+  geom_boxplot(show.legend = FALSE) +
+  scale_fill_manual(values = c("Republican" = "red", "Democrat" = "blue")) +
+  labs(title = "Presidential Party", x = NULL, y = "Total Debt ($ Trillions)") +
+  theme_minimal()
+
+house_plot <- lr_train |>
+  arrange(date) |>
+  mutate(house_party = factor(house_party, levels = c("0", "1"),
+                              labels = c("Republican", "Democrat"))) |>
+  ggplot(aes(x = house_party, y = total, fill = house_party)) +
+  geom_boxplot(show.legend = FALSE) +
+  scale_fill_manual(values = c("Republican" = "red", "Democrat" = "blue")) +
+  labs(title = "House Party", x = NULL, y = "Total Debt ($ Trillions)") +
+  theme_minimal()
+
+senate_plot <- lr_train |>
+  arrange(date) |>
+  mutate(senate_party = factor(senate_party, levels = c("0", "1"),
+                               labels = c("Republican", "Democrat"))) |>
+  ggplot(aes(x = senate_party, y = total, fill = senate_party)) +
+  geom_boxplot(show.legend = FALSE) +
+  scale_fill_manual(values = c("Republican" = "red", "Democrat" = "blue")) +
+  labs(title = "Senate Party", x = NULL, y = "Total Debt ($ Trillions)") +
+  theme_minimal()
+
+pres_plot / house_plot / senate_plot +
+  plot_annotation(title = "Consumer Debt by Political Party Control")
+```
+This gives us a better idea of the growth rate in debt under each party. It would appear that growth in consumer debt tends to rise faster under Republican control when compared to Democrat control. The growth in debt by political party can be influenced by a number of factors, such as fiscal policy or world events. Overall, both parties show growth in total consumer debt and the differences are minimal. 
+```{r}
+#| echo: false
+party_growth <- lr_train |>
+  arrange(date) |>
+  mutate(debt_growth = (total - lag(total)) / lag(total) * 100) |>
+  filter(!is.na(debt_growth)) |>
+  mutate(
+    pres_party   = factor(pres_party,   levels = c("0", "1"), labels = c("Republican", "Democrat")),
+    house_party  = factor(house_party,  levels = c("0", "1"), labels = c("Republican", "Democrat")),
+    senate_party = factor(senate_party, levels = c("0", "1"), labels = c("Republican", "Democrat"))
+  )
+
+pres_growth <- ggplot(party_growth, aes(x = pres_party, y = debt_growth, fill = pres_party)) +
+  geom_boxplot(show.legend = FALSE) +
+  scale_fill_manual(values = c("Republican" = "red", "Democrat" = "blue")) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray") +
+  labs(title = "Presidential Party", x = NULL, y = "Quarterly Growth (%)") +
+  theme_minimal()
+
+house_growth <- ggplot(party_growth, aes(x = house_party, y = debt_growth, fill = house_party)) +
+  geom_boxplot(show.legend = FALSE) +
+  scale_fill_manual(values = c("Republican" = "red", "Democrat" = "blue")) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray") +
+  labs(title = "House Party", x = NULL, y = "Quarterly Growth (%)") +
+  theme_minimal()
+
+senate_growth <- ggplot(party_growth, aes(x = senate_party, y = debt_growth, fill = senate_party)) +
+  geom_boxplot(show.legend = FALSE) +
+  scale_fill_manual(values = c("Republican" = "red", "Democrat" = "blue")) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray") +
+  labs(title = "Senate Party", x = NULL, y = "Quarterly Growth (%)") +
+  theme_minimal()
+
+pres_growth / house_growth / senate_growth +
+  plot_annotation(title = "Quarterly Consumer Debt Growth Rate by Political Party Control")
+```
+
+Here I have some side by side comparisons of the hiring rate, job turn over rate, average CPI, personal savings rate and total consumer debt. You can see that total consumer debt and average CPI have a strong correlation here, which makes sense; as the price of goods and services increase, so does the total debt.
+Unemployment rate seems to be on a slight upward trend as of recently, but still remains relatively low compared to prior years.
+It seems that personal savings rate, job turnover rate, and hiring rate have a high correlation as well, which could be explained by the hiring spree in 2020 as well as COVID-19 relief aid given out at that time. Looking at the charts here, there is a decline in those areas I mentioned during times of economic contraction. We are seeing that trend again in recent years, suggesting an upcoming economic contraction. You can see some stability in total debt, personal savings rate and job turnover rate between 2010 and 2018. Hiring rate remained on an upward trend from 2010 until roughly 2022, which is now in a sharp decline. 
+```{r}
+#| echo: false
+p_total <- lr_train |>
+  arrange(date) |>
+  ggplot(aes(x = date, y = total)) +
+  geom_line(color = "blue") +
+  labs(title = "Total Consumer Debt", x = NULL, y = "$ Trillions") +
+  theme_minimal()
+
+p_cpi <- lr_train |>
+  arrange(date) |>
+  ggplot(aes(x = date, y = cpi_index_avg)) +
+  geom_line(color = "red") +
+  labs(title = "Avg CPI", x = NULL, y = "Index") +
+  theme_minimal()
+
+p_savings <- lr_train |>
+  arrange(date) |>
+  ggplot(aes(x = date, y = personal_savings_rate)) +
+  geom_line(color = "green") +
+  labs(title = "Personal Savings Rate", x = NULL, y = "%") +
+  theme_minimal()
+
+p_hiring <- lr_train |>
+  arrange(date) |>
+  ggplot(aes(x = date, y = hiring_rate)) +
+  geom_line(color = "orange") +
+  labs(title = "Hiring Rate", x = NULL, y = "%") +
+  theme_minimal()
+
+p_turnover <- lr_train |>
+  arrange(date) |>
+  ggplot(aes(x = date, y = job_turnover_rate)) +
+  geom_line(color = "purple") +
+  labs(title = "Job Turnover Rate", x = NULL, y = "%") +
+  theme_minimal()
+
+p_sentiment <- lr_train |>
+  arrange(date) |>
+  ggplot(aes(x = date, y = consumer_sentiment)) +
+  geom_line(color = "gold") +
+  labs(title = "Consumer Sentiment", x = NULL, y = "%") +
+  theme_minimal()
+
+p_unemployed <- lr_train |>
+  arrange(date) |>
+  ggplot(aes(x = date, y = unemployment_rate)) +
+  geom_line(color = "maroon") +
+  labs(title = "Unemployment Rate", x = NULL, y = "%") +
+  theme_minimal()
+(p_total | p_cpi) / (p_sentiment | p_unemployed) / (p_savings | p_hiring | p_turnover) +
+  plot_annotation(title = "Consumer Debt vs. Economic Indicators Over Time")
+```
+
+## Model Selection Process
+I decided to run best subset first to find the best combination of predictors for my model. We can see that the predictors on line 7 are the best combination here: unemployment_rate, cpi_index_avg, personal_savings_rate, is_recession, house_party, mortgage rate, and effective federal funds rate. 
+I'm surprised the credit card interest rate didn't make the cut here, though it is tied to the effective federal funds (EFF) rate, so using it may be redundant. That being said, mortgage rate is being included, indicating that even if it is tied to the EFF rate, the fact that mortgage debt makes up a very large portion of consumer debt, it is a significant predictor for total consumer debt.  What's more surprising is that house party seemed to be an important predictor in total consumer debt, while the senate and presidential party are not. This is most likely because the House house the power of initiating spending bills, which may have impact on consumer spending. 
+```{r}
+#| echo: false
+best_model <- regsubsets(total ~ consumer_sentiment + unemployment_rate + cc_interest_rate + cpi_index_avg + personal_savings_rate 
+                      + is_recession + pres_party + house_party + senate_party + hiring_rate + job_turnover_rate + mortgage_rate
+                      + eff_fed_funds_rate + auto_loan_rate, data = lr_train, nvmax = 14)
+res_sum <- summary(best_model)
+res_sum$outmat
+which.min(res_sum$bic)
+```
+
+This is a visual representation of the best subset, where the top line shows which predictors carry the most weight in predicting total consumer debt. Note that the black boxes indicate useful predictors and white boxes indicate those that are not.
+```{r}
+#| echo: false
+plot(best_model, scale = "bic") 
+```
+
+Having used the best subset selection it is worth noting that the data set I have is fairly small, with only 23 variables and 55 observations, so the risk of overfitting is high. Using LASSO (Least Absolute Shrinkage and Selection Operator) we can identify and drop predictors that don't add any value to my model. We can see that a model with 7 predictors has the best predictive power without an overly complex model. 
+For clarification LASSO works by adding a penalty to the model for each predictor included. It acts as a budget for the model, limiting the amount 'spent' on predictors, forcing the least useful ones out by forcing its coefficient down to zero. This helps clear out the 'noise' from our data set, making sure only the useful predictors stay. Before the penalty is applied, the predictors are standardized, so predictors on different scales are treated fairly. We use cv.glmnet() for this, where standardize argument is set to TRUE by default. 
+```{r}
+#| echo: false
+x_train <- model.matrix(total ~ consumer_sentiment + unemployment_rate + cc_interest_rate + 
+                        cpi_index_avg + personal_savings_rate + is_recession + 
+                        pres_party + house_party + senate_party + hiring_rate + 
+                        job_turnover_rate + mortgage_rate + eff_fed_funds_rate + 
+                        auto_loan_rate, data = lr_train)[,-1]
+y_train <- lr_train$total
+set.seed(123) # For reproducibility
+cv_lasso <- cv.glmnet(x_train, y_train, alpha = 1) # cv.glmnet uses standardize, which is TRUE by default. Standardizes predictors
+plot(cv_lasso)
+```
+
+We can see that the LASSO method dropped unemployment rate, credit card interest rate, job turnover rate, mortgage rate, presidential party, and auto loan as predictors. Comparing the two models, there is a difference in the selection of predictors. In the LASSO method, unemployment and mortgage rate are dropped, but keeps consumer sentiment, senate party and hiring rate. Best Subset keeps unemployment rate and mortgage rate, but drops senate party, consumer sentiment and hiring rate as predictors. Both methods agree on average CPI, effective federal funds rate, personal savings rate, recession, and house party as predictors. 
+```{r}
+#| echo: false
+best_lambda <- cv_lasso$lambda.min
+lasso_coefs <- coef(cv_lasso, s = "lambda.min")
+print(lasso_coefs) 
+```
+
+This is an evaluation on the LASSO models performance on the test data. We can see the RMSE is roughly 0.459, suggesting this model is off by about $459 billion. I use these predictors below in my multiple linear regression model and random forest model below and discuss the results further in my interpretation of the models. 
+```{r}
+#| echo: false
+x_test <- model.matrix(total ~ consumer_sentiment + unemployment_rate + cc_interest_rate + 
+                       cpi_index_avg + personal_savings_rate + is_recession + 
+                       pres_party + house_party + senate_party + hiring_rate + 
+                       job_turnover_rate + mortgage_rate + eff_fed_funds_rate + 
+                       auto_loan_rate, data = lr_test)[,-1]
+lasso_preds <- predict(cv_lasso, s = "lambda.min", newx = x_test)
+rmse_vec(lr_test$total, as.vector(lasso_preds)) |>
+  kable() |>
+  kable_styling()
+```
+
+## Linear Regression Model Construction with Single Predictor 
+Below I have my linear regression model with a single predictor. I use average consumer price index of all consumer goods and services to explain total consumer debt over time. This explains roughly 90% of total consumer debt, which makes sense since they are highly correlated. That being said, it isn't the only predictor of consumer debt, as I'll show in my multiple linear regression model below.
+```{r}
+#| echo: false
+lin_reg_fl_spec <- linear_reg() |> 
+  set_engine("lm")
+lin_reg_fl_rec <- recipe(total ~ cpi_index_avg, data = lr_train) |>
+  step_unknown(all_nominal_predictors()) |> #handles missing values
+  step_novel(all_nominal_predictors()) |> #handles new data
+  step_dummy(all_nominal_predictors()) |> #change to numeric columns
+  step_zv(all_predictors()) #remove predictor variables that contain only a single value
+lin_reg_fl_wf <- workflow() |>
+  add_model(lin_reg_fl_spec) |>
+  add_recipe(lin_reg_fl_rec)
+lin_reg_fl_fit <- lin_reg_fl_wf |>
+  fit(lr_train)
+glance(lin_reg_fl_fit) |>
+  kable() |>
+  kable_styling()
+```
+
+Here we see how well the model generalizes by predicting the consumer debt for the test set and computing standard regression metrics such as RMSE and R squared. The RMSE shows we are off by about $877 billion.
+```{r}
+#| echo: false
+slr_test_aug <- augment(lin_reg_fl_fit, new_data = lr_test)
+
+slr_test_aug |>
+  metrics(truth = total, estimate = .pred) |>
+  kable() |>
+  kable_styling()
+```
+
+Here is a reassessment of the single linear regression model using cross-validation. 
+```{r}
+#| echo: false
+slr_res <- fit_resamples(
+  lin_reg_fl_wf,
+  resamples = rf_debt_folds,
+  metrics = metric_set(rmse, rsq)
+)
+
+collect_metrics(slr_res) |>
+  kable() |>
+  kable_styling()
+```
+
+## Linear Regression Model Construction with Multiple Predictors from Best Subset Selection
+Below is the linear regression model with multiple predictors picked from the best subset selection process. Below the results here I have a separate model for the predictors chosen with the LASSO method. The improvement in performance of this model is significant, having nearly half the score in AIC, suggesting this model is the better choice over the single linear regression model. The adjusted r-squared value explains nearly 98% of the variance in the data points. The deviance from the regression line is far smaller as well, emphasizing the predictive power of this model. 
+```{r}
+#| echo: false
+m_lin_reg_fl_spec <- linear_reg() |> 
+  set_engine("lm")
+
+m_lin_reg_fl_rec <- recipe(total ~ unemployment_rate + cpi_index_avg + personal_savings_rate + is_recession + 
+                                   house_party + mortgage_rate + eff_fed_funds_rate, data = lr_train) |>
+  step_unknown(all_nominal_predictors()) |> # Handles missing values
+  step_novel(all_nominal_predictors()) |> # Handles new data
+  step_dummy(all_nominal_predictors()) |>   # Change to numeric columns
+  step_zv(all_predictors())
+
+m_lin_reg_fl_wf <- workflow() |>
+  add_model(m_lin_reg_fl_spec) |>
+  add_recipe(m_lin_reg_fl_rec)
+m_lin_reg_fl_fit <- m_lin_reg_fl_wf |>
+  fit(lr_train)
+glance(m_lin_reg_fl_fit) |>
+  kable() |>
+  kable_styling()
+```
+
+We see an improvement in the prediction error as well, validating my observation that the multiple linear regression model here is superior than the simple linear regression model. 
+```{r}
+#| echo: false
+mlr_test_aug <- augment(m_lin_reg_fl_fit, new_data = lr_test)
+
+mlr_test_aug |>
+  metrics(truth = total, estimate = .pred) |>
+  kable() |>
+  kable_styling()
+```
+
+Here is a reassessment of the multiple linear regression model using cross-validation
+```{r}
+#| echo: false
+mlr_res <- fit_resamples(
+  m_lin_reg_fl_wf,
+  resamples = rf_debt_folds,
+  metrics = metric_set(rmse, rsq)
+)
+
+collect_metrics(mlr_res) |>
+  kable() |>
+  kable_styling()
+```
+
+## Linear Regression Model Construction with Multiple Predictors from LASSO method
+Here we have the multiple linear regression model with the predictors chosen using the LASSO method. The results are nearly identical. I will keep this here as a reference point and a reminder that reliance on a single model is not advised. As I stated before, the size of my data set is small, so there is a risk of overfitting. Having both models is helpful in analyzing new data and making future predictions. The metrics below suggest that the multiple linear regression model with best subset is preferred, according to AIC. 
+```{r}
+#| echo: false
+lasso_m_lin_reg_fl_spec <- linear_reg() |> 
+  set_engine("lm")
+
+lasso_m_lin_reg_fl_rec <- recipe(total ~ cpi_index_avg + personal_savings_rate + is_recession + 
+                                   house_party + senate_party + eff_fed_funds_rate + hiring_rate, data = lr_train) |>
+  step_unknown(all_nominal_predictors()) |> # Handles missing values
+  step_novel(all_nominal_predictors()) |> # Handles new data
+  step_dummy(all_nominal_predictors()) |>   # Change to numeric columns
+  step_zv(all_predictors())
+
+lasso_m_lin_reg_fl_wf <- workflow() |>
+  add_model(lasso_m_lin_reg_fl_spec) |>
+  add_recipe(lasso_m_lin_reg_fl_rec)
+lasso_m_lin_reg_fl_fit <- lasso_m_lin_reg_fl_wf |>
+  fit(lr_train)
+glance(lasso_m_lin_reg_fl_fit) |>
+  kable() |>
+  kable_styling()
+```
+
+You can see a minor improvement here in the RMSE, an error in prediction of $477 billion. 
+```{r}
+#| echo: false
+lasso_mlr_test_aug <- augment(lasso_m_lin_reg_fl_fit, new_data = lr_test)
+
+lasso_mlr_test_aug |>
+  metrics(truth = total, estimate = .pred) |>
+  kable() |>
+  kable_styling()
+```
+
+
+```{r}
+#| echo: false
+lasso_mlr_res <- fit_resamples(
+  lasso_m_lin_reg_fl_wf,
+  resamples = rf_debt_folds,
+  metrics = metric_set(rmse, rsq)
+)
+
+collect_metrics(lasso_mlr_res) |>
+  kable() |>
+  kable_styling()
+```
+
+
+## Random Forest Model Construction with all Predictors
+Here we have a random forest model using all predictors. This model performs marginally better than the simple linear regression model, but fails to outperform the multiple linear regression model. 
+```{r}
+#| echo: false
+rf_spec <- rand_forest(trees = 500) |>
+  set_engine("ranger", importance = "impurity") |>
+  set_mode("regression")
+
+rf_rec <- recipe(total ~ unemployment_rate + cpi_index_avg + consumer_sentiment + pres_party + auto_loan_rate +
+                        personal_savings_rate + is_recession + cc_interest_rate + senate_party +
+                        house_party + mortgage_rate + eff_fed_funds_rate + hiring_rate + job_turnover_rate, 
+                        data = rf_train) |>
+  step_unknown(all_nominal_predictors()) |>
+  step_novel(all_nominal_predictors()) |>
+  step_dummy(all_nominal_predictors()) |>
+  step_zv(all_predictors())
+
+rf_wf <- workflow() |>
+  add_model(rf_spec) |>
+  add_recipe(rf_rec)
+rf_res <- fit_resamples(
+  rf_wf,
+  resamples = rf_debt_folds,
+  metrics = metric_set(rmse, rsq)
+)
+
+collect_metrics(rf_res) |>
+  kable() |>
+  kable_styling()
+```
+
+With this model we can see that average CPI is the most important predictor, followed by credit card interest rate, which is interesting considering that both the best subset and LASSO method excluded credit card interest rate. This aligns with my intuition in thinking that credit card interest rate would play a role in predicting consumer debt, considering it sits at roughly 21%. Though credit card debt is not as large as the other types of debt, the high interest rate has compounding power, as I mentioned earlier in my report. 
+```{r}
+#| echo: false
+final_rf_fit <- rf_wf |> 
+  fit(data = rf_train)
+
+final_rf_fit |> 
+  extract_fit_parsnip() |> 
+  vip(geom = "col", mapping = aes(fill = Importance)) +
+  scale_fill_gradient(low = "steelblue", high = "firebrick") +
+  theme_minimal() +
+  labs(title = "Random Forest Variable Importance with all Predictors",
+       subtitle = "Key predictors of total consumer debt")
+```
+
+## Random Forest Model Construction with Best Subset Selection
+Here we have a random forest model using the predictors from best subset selection. This model performs marginally better than the simple linear regression model, but worse than the random forest model with all predictors included. It fails to outperform the multiple linear regression model. 
+```{r}
+#| echo: false
+bss_rf_spec <- rand_forest(trees = 500) |>
+  set_engine("ranger", importance = "impurity") |>
+  set_mode("regression")
+
+bss_rf_rec <- recipe(total ~ unemployment_rate + cpi_index_avg + 
+                        personal_savings_rate + is_recession + 
+                        house_party + mortgage_rate + eff_fed_funds_rate, 
+                        data = rf_train) |>
+  step_unknown(all_nominal_predictors()) |>
+  step_novel(all_nominal_predictors()) |>
+  step_dummy(all_nominal_predictors()) |>
+  step_zv(all_predictors())
+
+bss_rf_wf <- workflow() |>
+  add_model(bss_rf_spec) |>
+  add_recipe(bss_rf_rec)
+bss_rf_res <- fit_resamples(
+  bss_rf_wf,
+  resamples = rf_debt_folds,
+  metrics = metric_set(rmse, rsq)
+)
+
+collect_metrics(bss_rf_res) |>
+  kable() |>
+  kable_styling()
+```
+
+The order of importance here is similar to that of the above model with all predictors included. 
+```{r}
+#| echo: false
+bss_final_rf_fit <- bss_rf_wf |> 
+  fit(data = rf_train)
+
+bss_final_rf_fit |> 
+  extract_fit_parsnip() |> 
+  vip(geom = "col", mapping = aes(fill = Importance)) +
+  scale_fill_gradient(low = "steelblue", high = "firebrick") +
+  theme_minimal() +
+  labs(title = "Random Forest Variable Importance with Best Subset Selection",
+       subtitle = "Key predictors of total consumer debt")
+```
+
+## Random Forest Model Construction with LASSO method
+Here we see the random forest model with predictors from the LASSO method. This performed worse than all of the other models. This doesn't necessarily suggest that the predictors we used here are not useful, but may just indicate the random forest model is not a good fit for estimating the observed data and a less complex model would be best for estimating total consumer debt. 
+```{r}
+#| echo: false
+lasso_rf_spec <- rand_forest(trees = 500) |>
+  set_engine("ranger", importance = "impurity") |>
+  set_mode("regression")
+
+lasso_rf_rec <- recipe(total ~ cpi_index_avg + personal_savings_rate + is_recession + 
+                         house_party + senate_party + eff_fed_funds_rate + hiring_rate, 
+                        data = rf_train) |>
+  step_unknown(all_nominal_predictors()) |>
+  step_novel(all_nominal_predictors()) |>
+  step_dummy(all_nominal_predictors()) |>
+  step_zv(all_predictors())
+
+lasso_rf_wf <- workflow() |>
+  add_model(lasso_rf_spec) |>
+  add_recipe(lasso_rf_rec)
+lasso_rf_res <- fit_resamples(
+  lasso_rf_wf,
+  resamples = rf_debt_folds,
+  metrics = metric_set(rmse, rsq)
+)
+
+collect_metrics(lasso_rf_res) |>
+  kable() |>
+  kable_styling()
+```
+
+The change in importance here is only a result of the exclusion of predictors. Average CPI and interest rates remain the most important here. 
+```{r}
+#| echo: false
+lasso_final_rf_fit <- lasso_rf_wf |> 
+  fit(data = rf_train)
+
+lasso_final_rf_fit |> 
+  extract_fit_parsnip() |> 
+  vip(geom = "col", mapping = aes(fill = Importance)) +
+  scale_fill_gradient(low = "steelblue", high = "firebrick") +
+  theme_minimal() +
+  labs(title = "Random Forest Variable Importance with LASSO Method",
+       subtitle = "Key predictors of total consumer debt")
+```
+
+## Model Performance Assessment
+In this section, I reassess the three previously constructed models using 10-fold cross-validation. This provides a more robust estimate of how the models will perform on unseen data compared to the single validation split used in previous assignments. The multiple linear regression model outperforms the simple linear regression and the random forest model. The combination of predictors from the best subset selection used in multiple linear regression have high accuracy in predicting consumer debt. 
+```{r}
+#| echo: false
+# Combines the results into one table
+model_comparison <- bind_rows(
+  collect_metrics(slr_res) |> mutate(model = "Simple Linear Regression"),
+  collect_metrics(mlr_res) |> mutate(model = "Multiple Linear Regression"),
+  collect_metrics(lasso_mlr_res) |> mutate(model = "LASSO MLR"),
+  collect_metrics(rf_res)  |> mutate(model = "Random Forest"),
+  collect_metrics(lasso_rf_res) |> mutate(model = "Lasso RF"),
+  collect_metrics(bss_rf_res) |> mutate(model = "Best Subset Random Forest")
+) |>
+  filter(.metric == "rmse") |> 
+  select(model, mean, std_err) |>
+  arrange(mean)
+
+model_comparison |>
+  kable(caption = "Cross-Validation Performance Comparison (RMSE)") |>
+  kable_styling()
+```
+
+## Model Interpretation and Inference
+The multiple linear regression model with predictors from best subset selection outperforms all other models, having the lowest prediction error. The multiple linear regression model with predictors from the LASSO method is a close second, followed by the random forest model with all predictors. Random forest models typically perform well, but the limited size of the data set may have impacted performance. It could also suggest that less complex models are better equipped in predicting total debt with the provided predictors. The random forest model with predictors from the LASSO method performed the worst out of all models. The complexity of this model may have contributed to its poor performance. 
+ 
+## Conclusion
+I'd like to point out that after extensively testing and training my models here, that unseen events could have a substantial impact on consumer debt levels that cannot be explained by my models here. Such events could include the current situation with oil supply constraints, which could lead to a cascading set of negative events that could lead to either a substantial rise in debt, or lead to delinquencies and defaults lowering the debt, but erasing capital throughout the economy. 
+An issue I would like to point out with my model is the way the data is split for training and testing. In hindsight, I should have used the most recent data for testing and past data for training, which would have made for a more reliable model in terms of predictive power. Random splitting is standard for general regression, but time-series splitting (back testing) is preferred for economic forecasting to avoid 'look-ahead bias'. The proportion of data I used for training from the data set is 60%, which I believe to be a appropriate amount considering the size of the data set. 
+
+## References
+
+James, Gareth; Witten, Daniela; Hastie, Trevor; Tibshirani, Robert. "An Introduction to Statistical Learning: with Applications in R" (Springer Texts in Statistics)

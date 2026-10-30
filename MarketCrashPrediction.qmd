@@ -1,0 +1,38 @@
+---
+title: "Bike Share Duration Prediction"
+author: "Eric Anderson"
+email: eric.anderson16@snhu.edu
+affiliations: 
+name: Southern New Hampshire University
+date: today
+date-format: long
+theme: darkly
+toc: true
+format: html
+---
+
+```{r}
+#| label: setup
+#| echo: false
+#| include: false
+trainData <- read.csv("initial_data.csv")
+comp <- read.csv("competition_data.csv")
+library(readr)
+library(tidyverse)
+library(tidymodels)
+library(patchwork)
+library(kableExtra)
+library(janitor)
+library(lubridate)
+library(skimr)
+library("ranger")
+library(randomForest)
+knitr::opts_chunk$set(
+  fig.width = 8,
+  fig.height = 5,
+  dpi = 300
+)
+options(kable_styling_bootstrap_options = c("hover", "striped"))
+theme_set(theme_bw(base_size = 14))
+```
+
